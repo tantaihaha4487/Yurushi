@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.thanachot.yurushi.Yurushi;
+import net.thanachot.yurushi.manager.ServerAccessor;
+import net.thanachot.yurushi.manager.WhitelistManager;
 
 import java.awt.*;
 import java.time.Instant;
@@ -19,16 +21,60 @@ public class ApproveButton extends ActionButton {
 
     @Override
     public void handle(ButtonInteractionEvent event) {
-        Yurushi.LOGGER.info("Whitelist approved for {} by {}", minecraftUsername, event.getUser().getName());
+        event.deferReply(true).queue();
+
+        ServerAccessor.getWhitelistManager().ifPresentOrElse(
+                whitelistManager -> processWhitelist(event, whitelistManager),
+                () -> event.getHook().editOriginal("❌ Server is not available. Please try again later.").queue());
+    }
+
+    private void processWhitelist(ButtonInteractionEvent event, WhitelistManager whitelistManager) {
+        whitelistManager.addToWhitelist(minecraftUsername).thenAccept(result -> {
+            switch (result.status()) {
+                case SUCCESS -> handleSuccess(event, result);
+                case ALREADY_WHITELISTED -> handleAlreadyWhitelisted(event);
+                case PLAYER_NOT_FOUND -> handlePlayerNotFound(event);
+                case ERROR -> handleError(event, result);
+            }
+        }).exceptionally(throwable -> {
+            Yurushi.LOGGER.error("Failed to process whitelist for {}", minecraftUsername, throwable);
+            event.getHook().editOriginal("❌ An unexpected error occurred while processing the whitelist.").queue();
+            return null;
+        });
+    }
+
+    private void handleSuccess(ButtonInteractionEvent event, WhitelistManager.WhitelistResult result) {
+        Yurushi.LOGGER.info("Whitelist approved for {} by {} (UUID: {})",
+                minecraftUsername, event.getUser().getName(), result.uuid());
 
         Message message = event.getMessage();
-        updateOriginalMessage(message, event.getUser().getAsMention());
+        updateOriginalMessage(message, event.getUser().getAsMention(), result);
 
         sendApprovalDM(event);
 
-        event.reply("Whitelist request for `" + minecraftUsername + "` has been approved!")
-                .setEphemeral(true)
-                .queue();
+        String modeInfo = ServerAccessor.getWhitelistManager()
+                .map(wm -> wm.isOnlineMode() ? "Online" : "Offline")
+                .orElse("Unknown");
+
+        event.getHook().editOriginal("✅ Whitelist request for `" + minecraftUsername +
+                "` has been approved!\n" +
+                "**UUID:** `" + result.uuid() + "`\n" +
+                "**Server Mode:** " + modeInfo).queue();
+    }
+
+    private void handleAlreadyWhitelisted(ButtonInteractionEvent event) {
+        event.getHook().editOriginal("⚠️ `" + minecraftUsername + "` is already whitelisted on the server.").queue();
+    }
+
+    private void handlePlayerNotFound(ButtonInteractionEvent event) {
+        event.getHook().editOriginal("❌ Player `" + minecraftUsername +
+                "` was not found on Mojang's servers.\n" +
+                "This username might be incorrect or doesn't exist.").queue();
+    }
+
+    private void handleError(ButtonInteractionEvent event, WhitelistManager.WhitelistResult result) {
+        event.getHook().editOriginal("❌ Failed to whitelist `" + minecraftUsername +
+                "`.\nError: " + result.errorMessage()).queue();
     }
 
     @Override
@@ -41,11 +87,17 @@ public class ApproveButton extends ActionButton {
         return PREFIX;
     }
 
-    private void updateOriginalMessage(Message message, String adminName) {
+    private void updateOriginalMessage(Message message, String adminName, WhitelistManager.WhitelistResult result) {
+        String modeInfo = ServerAccessor.getWhitelistManager()
+                .map(wm -> wm.isOnlineMode() ? "Online Mode" : "Offline Mode")
+                .orElse("Unknown Mode");
+
         EmbedBuilder embed = new EmbedBuilder()
-                .setTitle("Whitelist Request - Approved")
+                .setTitle("Whitelist Request - Approved ✅")
                 .setColor(new Color(87, 242, 135))
-                .addField("Minecraft Username", "`" + minecraftUsername + "`", false)
+                .addField("Minecraft Username", "`" + minecraftUsername + "`", true)
+                .addField("UUID", "`" + result.uuid() + "`", true)
+                .addField("Server Mode", modeInfo, true)
                 .addField("Approved By", adminName, false)
                 .setTimestamp(Instant.now());
 
