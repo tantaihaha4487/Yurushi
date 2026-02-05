@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.thanachot.yurushi.discord.ICommand;
-import net.thanachot.yurushi.discord.ModalManager;
+import net.thanachot.yurushi.discord.modal.RegisterModal;
 
 public class RegisterCommand implements ICommand {
 
@@ -15,6 +15,7 @@ public class RegisterCommand implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        event.replyModal(ModalManager.getRegisterModal()).queue();
+        RegisterModal registerModal = new RegisterModal();
+        event.replyModal(registerModal.create()).queue();
     }
 }

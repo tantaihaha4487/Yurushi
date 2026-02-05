@@ -1,9 +1,10 @@
-package net.thanachot.yurushi.discord;
+package net.thanachot.yurushi.discord.manager;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.thanachot.yurushi.Yurushi;
+import net.thanachot.yurushi.discord.ICommand;
 import org.reflections.Reflections;
 
 import java.util.HashMap;
