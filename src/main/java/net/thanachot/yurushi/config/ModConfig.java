@@ -1,0 +1,107 @@
+package net.thanachot.yurushi.config;
+
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.fabricmc.loader.api.FabricLoader;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ModConfig {
+
+    private static final Path CONFIG_PATH = FabricLoader.getInstance()
+            .getConfigDir().resolve("Yurushi.toml");
+
+    public static String botToken = "";
+    public static String adminChannelId = "";
+    public static boolean adminRuleCanApprove = true;
+    public static boolean adminRuleCanDeny = true;
+    public static List<String> whitelistRole = new ArrayList<>();
+
+    public static void load() {
+        copyDefaultConfig();
+
+        try (CommentedFileConfig config = CommentedFileConfig.builder(CONFIG_PATH)
+                .autosave()
+                .build()) {
+            config.load();
+
+            botToken = config.getOrElse("botToken", "");
+            adminChannelId = config.getOrElse("adminChannelId", "");
+            adminRuleCanApprove = config.getOrElse("adminRuleCanApprove", true);
+            adminRuleCanDeny = config.getOrElse("adminRuleCanDeny", true);
+            whitelistRole = config.getOrElse("whitelistRole", new ArrayList<>());
+
+            config.set("botToken", botToken);
+            config.set("adminChannelId", adminChannelId);
+            config.set("adminRuleCanApprove", adminRuleCanApprove);
+            config.set("adminRuleCanDeny", adminRuleCanDeny);
+            config.set("whitelistRole", whitelistRole);
+        }
+    }
+
+    private static void copyDefaultConfig() {
+        if (Files.exists(CONFIG_PATH)) {
+            return;
+        }
+
+        try (InputStream is = ModConfig.class.getResourceAsStream("/Yurushi.toml")) {
+            if (is != null) {
+                Files.copy(is, CONFIG_PATH);
+            }
+        } catch (IOException ignored) {
+        }
+    }
+
+    public static List<String> validate() {
+        List<String> errors = new ArrayList<>();
+
+        if (botToken == null || botToken.isBlank()) {
+            errors.add("botToken is required");
+        }
+
+        if (adminChannelId == null || adminChannelId.isBlank()) {
+            errors.add("adminChannelId is required");
+        }
+
+        if (!adminRuleCanApprove && !adminRuleCanDeny) {
+            errors.add("At least one of adminRuleCanApprove or adminRuleCanDeny must be true");
+        }
+
+        return errors;
+    }
+
+    public static List<String> validateWithJda(JDA jda) {
+        List<String> errors = new ArrayList<>();
+
+        if (jda.getTextChannelById(adminChannelId) == null) {
+            errors.add("adminChannelId '" + adminChannelId + "' not found in Discord");
+        }
+
+        for (String roleId : whitelistRole) {
+            if (!roleExistsInAnyGuild(jda, roleId)) {
+                errors.add("whitelistRole '" + roleId + "' not found in Discord");
+            }
+        }
+
+        return errors;
+    }
+
+    private static boolean roleExistsInAnyGuild(JDA jda, String roleId) {
+        for (Guild guild : jda.getGuilds()) {
+            if (guild.getRoleById(roleId) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasErrors() {
+        return !validate().isEmpty();
+    }
+}

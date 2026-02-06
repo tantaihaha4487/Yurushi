@@ -2,6 +2,7 @@ package net.thanachot.yurushi.discord.modal;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
@@ -10,17 +11,19 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
 import net.thanachot.yurushi.Yurushi;
+import net.thanachot.yurushi.config.ModConfig;
 import net.thanachot.yurushi.discord.button.ApproveButton;
 import net.thanachot.yurushi.discord.button.DenyButton;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class RegisterModal extends BaseModal {
 
     public static final String PREFIX = "register_modal";
-    private static final String ADMIN_CHANNEL_ID = "1468343272995819560";
     private static final String MINECRAFT_USERNAME_INPUT_ID = "minecraft_username";
     private static final String DESCRIPTION_INPUT_ID = "description";
 
@@ -32,9 +35,6 @@ public class RegisterModal extends BaseModal {
         String description = event.getValue(DESCRIPTION_INPUT_ID) != null
                 ? Objects.requireNonNull(event.getValue(DESCRIPTION_INPUT_ID)).getAsString()
                 : "No description provided";
-
-        ApproveButton approveButton = new ApproveButton(requester.getId(), minecraftUsername);
-        DenyButton denyButton = new DenyButton(requester.getId(), minecraftUsername);
 
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Whitelist Request")
@@ -49,17 +49,31 @@ public class RegisterModal extends BaseModal {
                 .setFooter("User ID: " + requester.getId())
                 .setTimestamp(Instant.now());
 
-        TextChannel adminChannel = event.getJDA().getTextChannelById(ADMIN_CHANNEL_ID);
+        List<Button> buttons = new ArrayList<>();
+
+        if (ModConfig.adminRuleCanApprove) {
+            buttons.add(new ApproveButton(requester.getId(), minecraftUsername).create());
+        }
+
+        if (ModConfig.adminRuleCanDeny) {
+            buttons.add(new DenyButton(requester.getId(), minecraftUsername).create());
+        }
+
+        TextChannel adminChannel = event.getJDA().getTextChannelById(ModConfig.adminChannelId);
 
         if (adminChannel != null) {
-            adminChannel.sendMessageEmbeds(embed.build())
-                    .setComponents(ActionRow.of(approveButton.create(), denyButton.create()))
-                    .queue();
+            var messageAction = adminChannel.sendMessageEmbeds(embed.build());
+
+            if (!buttons.isEmpty()) {
+                messageAction = messageAction.setComponents(ActionRow.of(buttons));
+            }
+
+            messageAction.queue();
 
             event.reply(
-                    "Your whitelist request has been submitted!\n" +
-                            "**Minecraft Username:** ``" + minecraftUsername + "``\n" +
-                            "An admin will review your request soon.")
+                            "Your whitelist request has been submitted!\n" +
+                                    "**Minecraft Username:** ``" + minecraftUsername + "``\n" +
+                                    "An admin will review your request soon.")
                     .setEphemeral(true)
                     .queue();
         } else {

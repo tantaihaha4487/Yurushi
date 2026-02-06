@@ -1,0 +1,41 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║                           YURUSHI CONFIGURATION                            ║
+# ║              Discord Whitelist Bot for Minecraft Servers                   ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │                              BOT SETTINGS                                  │
+# └────────────────────────────────────────────────────────────────────────────┘
+
+# Your Discord Bot Token (Required)
+# Get it from: https://discord.com/developers/applications
+# Example: "MTIzNDU2Nzg5MDEyMzQ1Njc4.XxXxXx.YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+botToken = ""
+
+# The Discord channel ID where whitelist requests will be sent (Required)
+# Right-click on a channel > Copy Channel ID (Developer Mode must be enabled)
+# Example: "1234567890123456789"
+adminChannelId = ""
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │                          BUTTON VISIBILITY                                 │
+# │            Control which buttons appear on whitelist requests              │
+# └────────────────────────────────────────────────────────────────────────────┘
+
+# Allow approving whitelist requests
+adminRuleCanApprove = true
+
+# Allow denying whitelist requests
+adminRuleCanDeny = true
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │                           ROLE PERMISSIONS                                 │
+# │           Restrict who can click the approve/deny buttons                  │
+# └────────────────────────────────────────────────────────────────────────────┘
+
+# Discord Role IDs allowed to click the Approve and Deny buttons
+# - Empty [] = Anyone who can see the channel can approve/deny
+# - With roles = Only users with at least one of these roles can approve/deny
+# How to get Role ID: Right-click on a role > Copy Role ID
+# Example: ["1234567890123456789", "9876543210987654321"]
+whitelistRole = []

@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.thanachot.yurushi.Yurushi;
+import net.thanachot.yurushi.config.ModConfig;
 import net.thanachot.yurushi.discord.modal.DenialModal;
 
 import java.awt.*;
@@ -17,22 +18,6 @@ public class DenyButton extends ActionButton {
 
     public DenyButton(String userId, String minecraftUsername) {
         super(userId, minecraftUsername);
-    }
-
-    @Override
-    public void handle(ButtonInteractionEvent event) {
-        DenialModal denialModal = new DenialModal(userId, minecraftUsername);
-        event.replyModal(denialModal.create()).queue();
-    }
-
-    @Override
-    public Button create() {
-        return Button.danger(buildButtonId(), "Deny");
-    }
-
-    @Override
-    public String getPrefix() {
-        return PREFIX;
     }
 
     public static void sendDenialDM(JDA jda, String userId, String minecraftUsername, String reason) {
@@ -57,7 +42,7 @@ public class DenyButton extends ActionButton {
     }
 
     public static void updateOriginalMessage(Message message, String minecraftUsername, String reason,
-            String adminName) {
+                                             String adminName) {
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Whitelist Request - Denied")
                 .setColor(new Color(237, 66, 69))
@@ -67,5 +52,26 @@ public class DenyButton extends ActionButton {
                 .setTimestamp(Instant.now());
 
         message.editMessageEmbeds(embed.build()).setComponents().queue();
+    }
+
+    @Override
+    public void handle(ButtonInteractionEvent event) {
+        if (!hasRequiredRole(event, ModConfig.whitelistRole)) {
+            event.reply("❌ You don't have permission to deny requests.").setEphemeral(true).queue();
+            return;
+        }
+
+        DenialModal denialModal = new DenialModal(userId, minecraftUsername);
+        event.replyModal(denialModal.create()).queue();
+    }
+
+    @Override
+    public Button create() {
+        return Button.danger(buildButtonId(), "Deny");
+    }
+
+    @Override
+    public String getPrefix() {
+        return PREFIX;
     }
 }

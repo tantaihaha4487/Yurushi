@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.thanachot.yurushi.Yurushi;
+import net.thanachot.yurushi.config.ModConfig;
 import net.thanachot.yurushi.manager.ServerAccessor;
 import net.thanachot.yurushi.manager.WhitelistManager;
 
@@ -21,6 +22,11 @@ public class ApproveButton extends ActionButton {
 
     @Override
     public void handle(ButtonInteractionEvent event) {
+        if (!hasRequiredRole(event, ModConfig.whitelistRole)) {
+            event.reply("❌ You don't have permission to approve requests.").setEphemeral(true).queue();
+            return;
+        }
+
         event.deferReply(true).queue();
 
         ServerAccessor.getWhitelistManager().ifPresentOrElse(

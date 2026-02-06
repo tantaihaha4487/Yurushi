@@ -211,13 +211,6 @@ public class WhitelistManager {
             String username,
             UUID uuid,
             String errorMessage) {
-        public enum Status {
-            SUCCESS,
-            ALREADY_WHITELISTED,
-            PLAYER_NOT_FOUND,
-            ERROR
-        }
-
         public static WhitelistResult success(String username, UUID uuid) {
             return new WhitelistResult(Status.SUCCESS, username, uuid, null);
         }
@@ -245,6 +238,13 @@ public class WhitelistManager {
                 case PLAYER_NOT_FOUND -> "Player " + username + " was not found on Mojang's servers";
                 case ERROR -> "Error whitelisting " + username + ": " + errorMessage;
             };
+        }
+
+        public enum Status {
+            SUCCESS,
+            ALREADY_WHITELISTED,
+            PLAYER_NOT_FOUND,
+            ERROR
         }
     }
 }

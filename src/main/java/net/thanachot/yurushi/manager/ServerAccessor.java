@@ -12,6 +12,10 @@ public class ServerAccessor {
     private ServerAccessor() {
     }
 
+    public static Optional<MinecraftServer> getServer() {
+        return Optional.ofNullable(server);
+    }
+
     public static void setServer(MinecraftServer minecraftServer) {
         server = minecraftServer;
         if (minecraftServer != null) {
@@ -19,10 +23,6 @@ public class ServerAccessor {
         } else {
             whitelistManager = null;
         }
-    }
-
-    public static Optional<MinecraftServer> getServer() {
-        return Optional.ofNullable(server);
     }
 
     public static Optional<WhitelistManager> getWhitelistManager() {
