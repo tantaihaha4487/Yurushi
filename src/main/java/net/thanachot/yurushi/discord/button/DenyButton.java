@@ -41,8 +41,7 @@ public class DenyButton extends ActionButton {
         }, error -> Yurushi.LOGGER.error("Could not retrieve user: {}", userId));
     }
 
-    public static void updateOriginalMessage(Message message, String minecraftUsername, String reason,
-                                             String adminName) {
+    public static void updateOriginalMessage(Message message, String minecraftUsername, String reason, String adminName) {
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Whitelist Request - Denied")
                 .setColor(new Color(237, 66, 69))

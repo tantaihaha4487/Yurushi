@@ -58,14 +58,9 @@ public class ApproveButton extends ActionButton {
 
         sendApprovalDM(event);
 
-        String modeInfo = ServerAccessor.getWhitelistManager()
-                .map(wm -> wm.isOnlineMode() ? "Online" : "Offline")
-                .orElse("Unknown");
-
         event.getHook().editOriginal("✅ Whitelist request for `" + minecraftUsername +
                 "` has been approved!\n" +
-                "**UUID:** `" + result.uuid() + "`\n" +
-                "**Server Mode:** " + modeInfo).queue();
+                "**UUID:** `" + result.uuid() + "`\n").queue();
     }
 
     private void handleAlreadyWhitelisted(ButtonInteractionEvent event) {
@@ -94,16 +89,12 @@ public class ApproveButton extends ActionButton {
     }
 
     private void updateOriginalMessage(Message message, String adminName, WhitelistManager.WhitelistResult result) {
-        String modeInfo = ServerAccessor.getWhitelistManager()
-                .map(wm -> wm.isOnlineMode() ? "Online Mode" : "Offline Mode")
-                .orElse("Unknown Mode");
 
         EmbedBuilder embed = new EmbedBuilder()
-                .setTitle("Whitelist Request - Approved ✅")
+                .setTitle("Whitelist Request - Approved")
                 .setColor(new Color(87, 242, 135))
                 .addField("Minecraft Username", "`" + minecraftUsername + "`", true)
-                .addField("UUID", "`" + result.uuid() + "`", true)
-                .addField("Server Mode", modeInfo, true)
+                .addField("UUID", "`" + result.uuid() + "`", false)
                 .addField("Approved By", adminName, false)
                 .setTimestamp(Instant.now());
 
