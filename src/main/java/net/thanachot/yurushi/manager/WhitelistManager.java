@@ -144,7 +144,7 @@ public class WhitelistManager {
             hash[6] &= 0x0f;
             hash[6] |= 0x30;
             hash[8] &= 0x3f;
-            hash[8] |= 0x80;
+            hash[8] |= (byte) 0x80;
 
             long msb = 0;
             long lsb = 0;

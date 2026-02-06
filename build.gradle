@@ -46,6 +46,7 @@ dependencies {
     // Reflections library for dynamic command class discovery
     implementation 'org.reflections:reflections:0.10.2'
     implementation("com.electronwill.night-config:toml:3.6.7")
+    include(modImplementation('me.lucko:fabric-permissions-api:0.6.1'))
 }
 
 processResources {

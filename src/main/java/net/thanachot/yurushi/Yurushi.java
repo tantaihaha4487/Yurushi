@@ -4,7 +4,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.thanachot.yurushi.command.ReloadConfigCommand;
 import net.thanachot.yurushi.config.ModConfig;
 import net.thanachot.yurushi.discord.event.ButtonListener;
 import net.thanachot.yurushi.discord.event.ClientReady;
@@ -27,7 +29,11 @@ public class Yurushi implements ModInitializer {
 
     @Override
     public void onInitialize() {
+
         ModConfig.load();
+
+        CommandRegistrationCallback.EVENT
+                .register((dispatcher, registryAccess, environment) -> ReloadConfigCommand.register(dispatcher));
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             ServerAccessor.setServer(server);
