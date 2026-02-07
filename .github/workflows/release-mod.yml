@@ -34,31 +34,14 @@ jobs:
           VERSION=$(grep "mod_version=" gradle.properties | cut -d'=' -f2)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Find JAR file
-        id: find_jar
-        run: |
-          JAR_PATH=$(ls build/libs/yurushi-*.jar | grep -v sources | grep -v javadoc | head -n 1)
-          JAR_NAME=$(basename "$JAR_PATH")
-          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
-          echo "jar_name=$JAR_NAME" >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub Release and Upload All JARs
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
-          release_name: Yurushi v${{ steps.get_version.outputs.version }}
+          name: Yurushi v${{ steps.get_version.outputs.version }}
           draft: false
           prerelease: false
-
-      - name: Upload Mod JAR
-        uses: actions/upload-release-asset@v1
+          files: |
+            build/libs/yurushi-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_jar.outputs.jar_path }}
-          asset_name: ${{ steps.find_jar.outputs.jar_name }}
-          asset_content_type: application/java-archive
