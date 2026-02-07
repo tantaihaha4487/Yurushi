@@ -12,7 +12,7 @@ import net.thanachot.yurushi.discord.event.ButtonListener;
 import net.thanachot.yurushi.discord.event.ClientReady;
 import net.thanachot.yurushi.discord.event.ModalListener;
 import net.thanachot.yurushi.discord.manager.CommandManager;
-import net.thanachot.yurushi.manager.ServerAccessor;
+import net.thanachot.yurushi.util.ServerAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

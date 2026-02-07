@@ -37,8 +37,9 @@ public class DenialModal extends BaseModal {
                     event.getUser().getAsMention());
         }
 
-        event.reply("Whitelist request for `" + minecraftUsername + "` has been denied.\n" +
-                        "**Reason:** " + denialReason)
+        event.reply(
+                        "Whitelist request for `" + minecraftUsername + "` has been denied.\n" +
+                                "**Reason:** " + denialReason)
                 .setEphemeral(true)
                 .queue();
     }

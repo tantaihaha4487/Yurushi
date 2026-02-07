@@ -6,8 +6,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.thanachot.yurushi.Yurushi;
 import net.thanachot.yurushi.config.ModConfig;
-import net.thanachot.yurushi.manager.ServerAccessor;
 import net.thanachot.yurushi.manager.WhitelistManager;
+import net.thanachot.yurushi.util.MinotarUtil;
+import net.thanachot.yurushi.util.ServerAccessor;
 
 import java.awt.*;
 import java.time.Instant;
@@ -93,6 +94,7 @@ public class ApproveButton extends ActionButton {
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Whitelist Request - Approved")
                 .setColor(new Color(87, 242, 135))
+                .setThumbnail(MinotarUtil.getAvatarUrl(minecraftUsername))
                 .addField("Minecraft Username", "`" + minecraftUsername + "`", true)
                 .addField("UUID", "`" + result.uuid() + "`", false)
                 .addField("Approved By", adminName, false)

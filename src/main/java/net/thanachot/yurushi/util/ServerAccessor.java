@@ -1,6 +1,7 @@
-package net.thanachot.yurushi.manager;
+package net.thanachot.yurushi.util;
 
 import net.minecraft.server.MinecraftServer;
+import net.thanachot.yurushi.manager.WhitelistManager;
 
 import java.util.Optional;
 
