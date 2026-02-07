@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
 import net.thanachot.yurushi.Yurushi;
+import net.thanachot.yurushi.config.MessageConfig;
 import net.thanachot.yurushi.config.ModConfig;
 import net.thanachot.yurushi.discord.button.ApproveButton;
 import net.thanachot.yurushi.discord.button.DenyButton;
@@ -37,16 +38,20 @@ public class RegisterModal extends BaseModal {
                 : "No description provided";
 
         EmbedBuilder embed = new EmbedBuilder()
-                .setTitle("Whitelist Request")
+                .setTitle(MessageConfig.get("embed.request.title"))
                 .setColor(new Color(233, 136, 255))
                 .setThumbnail(requester.getEffectiveAvatarUrl())
-                .addField("Discord User", requester.getAsMention(), true)
-                .addField("Minecraft Username", "`" + minecraftUsername + "`", true)
-                .addField("Description",
-                        description.isEmpty() ? "*No description provided*"
+                .addField(MessageConfig.get("embed.request.fields.discord_user"),
+                        requester.getAsMention(), true)
+                .addField(MessageConfig.get("embed.request.fields.minecraft_username"),
+                        "`" + minecraftUsername + "`", true)
+                .addField(MessageConfig.get("embed.request.fields.description"),
+                        description.isEmpty()
+                                ? MessageConfig.get(
+                                "embed.request.fields.description_empty")
                                 : "``" + description + "``",
                         false)
-                .setFooter("User ID: " + requester.getId())
+                .setFooter(MessageConfig.get("embed.request.footer", "user_id", requester.getId()))
                 .setTimestamp(Instant.now());
 
         List<Button> buttons = new ArrayList<>();
@@ -62,17 +67,19 @@ public class RegisterModal extends BaseModal {
             messageAction.queue();
 
             EmbedBuilder replyEmbed = new EmbedBuilder()
-                    .setTitle("Your whitelist request has been submitted!")
+                    .setTitle(MessageConfig.get("modal.register.success"))
                     .setColor(new Color(233, 136, 255))
-                    .addField("Discord User", requester.getAsMention(), true)
-                    .addField("Minecraft Username", "`" + minecraftUsername + "`", true)
+                    .addField(MessageConfig.get("embed.request.fields.discord_user"),
+                            requester.getAsMention(), true)
+                    .addField(MessageConfig.get("embed.request.fields.minecraft_username"),
+                            "`" + minecraftUsername + "`", true)
                     .setTimestamp(Instant.now());
 
             event.replyEmbeds(replyEmbed.build())
                     .setEphemeral(true)
                     .queue();
         } else {
-            event.reply("An error occurred. Please contact an administrator.")
+            event.reply(MessageConfig.get("error.admin_channel_not_found"))
                     .setEphemeral(true)
                     .queue();
             Yurushi.LOGGER.error("Admin channel not found for whitelist requests.");
@@ -82,22 +89,24 @@ public class RegisterModal extends BaseModal {
     @Override
     public Modal create() {
         TextInput minecraftUsername = TextInput.create(MINECRAFT_USERNAME_INPUT_ID, TextInputStyle.SHORT)
-                .setPlaceholder("Enter your Minecraft username")
+                .setPlaceholder(MessageConfig.get("modal.register.inputs.username_placeholder"))
                 .setRequired(true)
                 .setMinLength(3)
                 .setMaxLength(16)
                 .build();
 
         TextInput description = TextInput.create(DESCRIPTION_INPUT_ID, TextInputStyle.PARAGRAPH)
-                .setPlaceholder("Tell us a bit about yourself or why you want to join...")
+                .setPlaceholder(MessageConfig.get("modal.register.inputs.description_placeholder"))
                 .setRequired(false)
                 .setMaxLength(500)
                 .build();
 
-        return Modal.create(PREFIX, "Whitelist Registration")
+        return Modal.create(PREFIX, MessageConfig.get("modal.register.title"))
                 .addComponents(
-                        Label.of("Minecraft Username", minecraftUsername),
-                        Label.of("Description (Optional)", description))
+                        Label.of(MessageConfig.get("modal.register.inputs.username_label"),
+                                minecraftUsername),
+                        Label.of(MessageConfig.get("modal.register.inputs.description_label"),
+                                description))
                 .build();
     }
 

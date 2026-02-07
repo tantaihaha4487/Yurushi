@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.modals.Modal;
+import net.thanachot.yurushi.config.MessageConfig;
 import net.thanachot.yurushi.discord.button.DenyButton;
 
 import java.util.Optional;
@@ -28,7 +29,7 @@ public class DenialModal extends BaseModal {
         String denialReason = Optional.ofNullable(event.getValue(DENIAL_REASON_INPUT_ID))
                 .map(ModalMapping::getAsString)
                 .filter(s -> !s.isBlank())
-                .orElse("*No reason provided*");
+                .orElse(MessageConfig.get("modal.deny.inputs.reason_empty"));
 
         DenyButton.sendDenialDM(event.getJDA(), userId, minecraftUsername, denialReason);
 
@@ -38,8 +39,8 @@ public class DenialModal extends BaseModal {
         }
 
         event.reply(
-                        "Whitelist request for `" + minecraftUsername + "` has been denied.\n" +
-                                "**Reason:** " + denialReason)
+                        MessageConfig.get("button.deny.success", "minecraft_username", minecraftUsername, "reason",
+                                denialReason))
                 .setEphemeral(true)
                 .queue();
     }
@@ -47,14 +48,14 @@ public class DenialModal extends BaseModal {
     @Override
     public Modal create() {
         TextInput reasonInput = TextInput.create(DENIAL_REASON_INPUT_ID, TextInputStyle.PARAGRAPH)
-                .setPlaceholder("Provide a reason for denying the whitelist request...")
+                .setPlaceholder(MessageConfig.get("modal.deny.inputs.reason_placeholder"))
                 .setRequired(false)
                 .setMinLength(0)
                 .setMaxLength(500)
                 .build();
 
-        return Modal.create(buildModalId(), "Deny Whitelist Request")
-                .addComponents(Label.of("Denial Reason", reasonInput))
+        return Modal.create(buildModalId(), MessageConfig.get("modal.deny.title"))
+                .addComponents(Label.of(MessageConfig.get("modal.deny.inputs.reason_label"), reasonInput))
                 .build();
     }
 

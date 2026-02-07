@@ -1,12 +1,7 @@
 package net.thanachot.yurushi.discord.button;
 
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.buttons.Button;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-
-import java.util.List;
 
 public abstract class ActionButton {
 
@@ -44,22 +39,4 @@ public abstract class ActionButton {
         return getPrefix() + ":" + userId + ":" + minecraftUsername;
     }
 
-    protected boolean hasRequiredRole(ButtonInteractionEvent event, List<String> allowedRoleIds) {
-        Member member = event.getMember();
-        if (member == null)
-            return false;
-
-        if (member.hasPermission(Permission.ADMINISTRATOR))
-            return true;
-
-        if (allowedRoleIds == null || allowedRoleIds.isEmpty())
-            return true;
-
-        for (Role role : member.getRoles()) {
-            if (allowedRoleIds.contains(role.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

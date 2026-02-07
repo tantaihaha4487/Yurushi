@@ -1,0 +1,70 @@
+[error]
+no_permission = "❌ You don't have permission to perform this action."
+server_unavailable = "❌ Server is not available. Please try again later."
+unexpected = "❌ An unexpected error occurred."
+admin_channel_not_found = "An error occurred. Please contact an administrator."
+
+[button]
+[button.approve]
+label = "Approve"
+success = "✅ Whitelist request for `{minecraft_username}` has been approved!\n**UUID:** `{uuid}`"
+already_whitelisted = "⚠️ `{minecraft_username}` is already whitelisted on the server."
+player_not_found = "❌ Player `{minecraft_username}` was not found on Mojang's servers.\nThis username might be incorrect or doesn't exist."
+failed = "❌ Failed to whitelist `{minecraft_username}`.\nError: {error}"
+
+[button.deny]
+label = "Deny"
+success = "Whitelist request for `{minecraft_username}` has been denied.\n**Reason:** {reason}"
+
+[embed]
+[embed.request]
+title = "Whitelist Request"
+footer = "User ID: {user_id}"
+[embed.request.fields]
+discord_user = "Discord User"
+minecraft_username = "Minecraft Username"
+description = "Description"
+description_empty = "*No description provided*"
+
+[embed.approved]
+title = "Whitelist Request - Approved"
+footer = "You can now join the server!"
+[embed.approved.fields]
+approved_by = "Approved By"
+
+[embed.already_whitelisted]
+title = "Whitelist Request - Already Whitelisted"
+footer = "⚠️ This player is already whitelisted."
+
+[embed.denied]
+title = "Whitelist Request - Denied"
+footer = "Please contact an administrator if you have questions."
+[embed.denied.fields]
+reason = "Reason"
+denied_by = "Denied By"
+
+[dm]
+[dm.approved]
+title = "Whitelist Request Approved"
+description = "Congratulations! Your whitelist request has been approved."
+
+[dm.denied]
+title = "Whitelist Request Denied"
+description = "Unfortunately, your whitelist request has been denied."
+
+[modal]
+[modal.register]
+title = "Whitelist Registration"
+success = "Your whitelist request has been submitted!"
+[modal.register.inputs]
+username_label = "Minecraft Username"
+username_placeholder = "Enter your Minecraft username"
+description_label = "Description (Optional)"
+description_placeholder = "Tell us a bit about yourself or why you want to join..."
+
+[modal.deny]
+title = "Deny Whitelist Request"
+[modal.deny.inputs]
+reason_label = "Denial Reason"
+reason_placeholder = "Provide a reason for denying the whitelist request..."
+reason_empty = "*No reason provided*"

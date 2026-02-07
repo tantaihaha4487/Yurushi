@@ -20,7 +20,6 @@ import java.util.concurrent.CompletableFuture;
 public class WhitelistManager {
 
     private static final String MOJANG_API_URL = "https://api.mojang.com/users/profiles/minecraft/";
-
     private final MinecraftServer server;
 
     public WhitelistManager(MinecraftServer server) {
@@ -42,9 +41,9 @@ public class WhitelistManager {
             try {
                 Optional<MojangProfile> profile = fetchMojangProfile(username);
 
-                if (profile.isEmpty()) {
+                if (profile.isEmpty())
                     return WhitelistResult.playerNotFound(username);
-                }
+
 
                 MojangProfile mojangProfile = profile.get();
                 return executeWhitelistAdd(mojangProfile.username(), mojangProfile.uuid());
@@ -164,9 +163,8 @@ public class WhitelistManager {
     public CompletableFuture<Boolean> removeFromWhitelist(String username) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                if (!isPlayerWhitelisted(username)) {
+                if (!isPlayerWhitelisted(username))
                     return false;
-                }
 
                 server.execute(() -> {
                     try {

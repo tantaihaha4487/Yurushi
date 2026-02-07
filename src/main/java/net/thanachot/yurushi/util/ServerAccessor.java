@@ -19,6 +19,7 @@ public class ServerAccessor {
 
     public static void setServer(MinecraftServer minecraftServer) {
         server = minecraftServer;
+
         if (minecraftServer != null) {
             whitelistManager = new WhitelistManager(minecraftServer);
         } else {

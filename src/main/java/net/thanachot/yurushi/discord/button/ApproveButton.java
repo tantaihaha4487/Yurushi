@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.thanachot.yurushi.Yurushi;
+import net.thanachot.yurushi.config.MessageConfig;
 import net.thanachot.yurushi.config.ModConfig;
 import net.thanachot.yurushi.manager.WhitelistManager;
 import net.thanachot.yurushi.util.MinotarUtil;
@@ -23,8 +24,8 @@ public class ApproveButton extends ActionButton {
 
     @Override
     public void handle(ButtonInteractionEvent event) {
-        if (!hasRequiredRole(event, ModConfig.whitelistRole)) {
-            event.reply("❌ You don't have permission to approve requests.").setEphemeral(true).queue();
+        if (!ModConfig.hasWhitelistPermission(event.getMember())) {
+            event.reply(MessageConfig.get("error.no_permission")).setEphemeral(true).queue();
             return;
         }
 
@@ -32,7 +33,7 @@ public class ApproveButton extends ActionButton {
 
         var whitelistManager = ServerAccessor.getWhitelistManager();
         if (whitelistManager.isEmpty()) {
-            event.getHook().editOriginal("❌ Server is not available. Please try again later.").queue();
+            event.getHook().editOriginal(MessageConfig.get("error.server_unavailable")).queue();
             return;
         }
 
@@ -49,7 +50,7 @@ public class ApproveButton extends ActionButton {
             }
         }).exceptionally(throwable -> {
             Yurushi.LOGGER.error("Failed to process whitelist for {}", minecraftUsername, throwable);
-            event.getHook().editOriginal("❌ An unexpected error occurred while processing the whitelist.").queue();
+            event.getHook().editOriginal(MessageConfig.get("error.unexpected")).queue();
             return null;
         });
     }
@@ -59,47 +60,52 @@ public class ApproveButton extends ActionButton {
                 minecraftUsername, event.getUser().getName(), result.uuid());
 
         Message message = event.getMessage();
-        updateOriginalMessage(message, event.getUser().getAsMention(), result);
+        updateOriginalMessage(message, event.getUser().getAsMention());
 
         sendApprovalDM(event);
 
-        event.getHook().editOriginal("✅ Whitelist request for `" + minecraftUsername +
-                "` has been approved!\n" +
-                "**UUID:** `" + result.uuid() + "`\n").queue();
+        event.getHook().editOriginal(MessageConfig.get("button.approve.success",
+                "minecraft_username", minecraftUsername,
+                "uuid", result.uuid().toString())).queue();
     }
 
     private void handleAlreadyWhitelisted(ButtonInteractionEvent event) {
         Message message = event.getMessage();
         if (message.getEmbeds().isEmpty()) {
-            event.getHook().editOriginal("⚠️ `" + minecraftUsername + "` is already whitelisted on the server.")
+            event.getHook().editOriginal(
+                            MessageConfig.get("button.approve.already_whitelisted", "minecraft_username", minecraftUsername))
                     .queue();
             return;
         }
 
-        EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().get(0))
-                .setTitle("Whitelist Request - Already Whitelisted")
+        EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().getFirst())
+                .setTitle(MessageConfig.get("embed.already_whitelisted.title"))
                 .setColor(Color.YELLOW)
-                .setFooter("⚠️ This player is already whitelisted.")
+                .setFooter(MessageConfig.get("embed.already_whitelisted.footer"))
                 .setTimestamp(Instant.now());
 
         message.editMessageEmbeds(embed.build()).setComponents().queue();
-        event.getHook().editOriginal("⚠️ `" + minecraftUsername + "` is already whitelisted on the server.").queue();
+        event.getHook().editOriginal(
+                        MessageConfig.get("button.approve.already_whitelisted", "minecraft_username", minecraftUsername))
+                .queue();
     }
 
     private void handlePlayerNotFound(ButtonInteractionEvent event) {
-        event.getHook().editOriginal("❌ Player `" + minecraftUsername +
-                "` was not found on Mojang's servers.\n" +
-                "This username might be incorrect or doesn't exist.").queue();
+        event.getHook()
+                .editOriginal(
+                        MessageConfig.get("button.approve.player_not_found", "minecraft_username", minecraftUsername))
+                .queue();
     }
 
     private void handleError(ButtonInteractionEvent event, WhitelistManager.WhitelistResult result) {
-        event.getHook().editOriginal("❌ Failed to whitelist `" + minecraftUsername +
-                "`.\nError: " + result.errorMessage()).queue();
+        event.getHook().editOriginal(MessageConfig.get("button.approve.failed",
+                "minecraft_username", minecraftUsername,
+                "error", result.errorMessage())).queue();
     }
 
     @Override
     public Button create() {
-        return Button.success(buildButtonId(), "Approve");
+        return Button.success(buildButtonId(), MessageConfig.get("button.approve.label"));
     }
 
     @Override
@@ -107,15 +113,16 @@ public class ApproveButton extends ActionButton {
         return PREFIX;
     }
 
-    private void updateOriginalMessage(Message message, String adminName, WhitelistManager.WhitelistResult result) {
+    private void updateOriginalMessage(Message message, String adminName) {
 
         EmbedBuilder embed = new EmbedBuilder()
-                .setTitle("Whitelist Request - Approved")
+                .setTitle(MessageConfig.get("embed.approved.title"))
                 .setColor(new Color(87, 242, 135))
                 .setThumbnail(MinotarUtil.getAvatarUrl(minecraftUsername))
-                .addField("Minecraft Username", "`" + minecraftUsername + "`", true)
-                .addField("Approved By", adminName, false)
-                .setFooter("You can now join the server!")
+                .addField(MessageConfig.get("embed.request.fields.minecraft_username"), "`" + minecraftUsername + "`",
+                        true)
+                .addField(MessageConfig.get("embed.approved.fields.approved_by"), adminName, false)
+                .setFooter(MessageConfig.get("embed.approved.footer"))
                 .setTimestamp(Instant.now());
 
         message.editMessageEmbeds(embed.build()).setComponents().queue();
@@ -123,15 +130,17 @@ public class ApproveButton extends ActionButton {
 
     private void sendApprovalDM(ButtonInteractionEvent event) {
         event.getJDA().retrieveUserById(userId).queue(user -> {
-            if (user == null) return;
+            if (user == null)
+                return;
 
             user.openPrivateChannel().queue(channel -> {
                 EmbedBuilder dmEmbed = new EmbedBuilder()
-                        .setTitle("Whitelist Request Approved")
+                        .setTitle(MessageConfig.get("dm.approved.title"))
                         .setColor(new Color(87, 242, 135))
-                        .setDescription("Congratulations! Your whitelist request has been approved.")
-                        .addField("Minecraft Username", "`" + minecraftUsername + "`", false)
-                        .setFooter("You can now join the server!")
+                        .setDescription(MessageConfig.get("dm.approved.description"))
+                        .addField(MessageConfig.get("embed.request.fields.minecraft_username"),
+                                "`" + minecraftUsername + "`", false)
+                        .setFooter(MessageConfig.get("embed.approved.footer"))
                         .setTimestamp(Instant.now());
                 channel.sendMessageEmbeds(dmEmbed.build()).queue(
                         success -> {

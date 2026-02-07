@@ -15,7 +15,6 @@ public class RegisterCommand implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        RegisterModal registerModal = new RegisterModal();
-        event.replyModal(registerModal.create()).queue();
+        event.replyModal(new RegisterModal().create()).queue();
     }
 }
