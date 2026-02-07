@@ -30,9 +30,13 @@ public class ApproveButton extends ActionButton {
 
         event.deferReply(true).queue();
 
-        ServerAccessor.getWhitelistManager().ifPresentOrElse(
-                whitelistManager -> processWhitelist(event, whitelistManager),
-                () -> event.getHook().editOriginal("❌ Server is not available. Please try again later.").queue());
+        var whitelistManager = ServerAccessor.getWhitelistManager();
+        if (whitelistManager.isEmpty()) {
+            event.getHook().editOriginal("❌ Server is not available. Please try again later.").queue();
+            return;
+        }
+
+        processWhitelist(event, whitelistManager.get());
     }
 
     private void processWhitelist(ButtonInteractionEvent event, WhitelistManager whitelistManager) {
@@ -66,16 +70,19 @@ public class ApproveButton extends ActionButton {
 
     private void handleAlreadyWhitelisted(ButtonInteractionEvent event) {
         Message message = event.getMessage();
-        if (!message.getEmbeds().isEmpty()) {
-            EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().get(0))
-                    .setTitle("Whitelist Request - Already Whitelisted")
-                    .setColor(Color.YELLOW)
-                    .setFooter("⚠️ This player is already whitelisted.")
-                    .setTimestamp(Instant.now());
-
-            message.editMessageEmbeds(embed.build()).setComponents().queue();
+        if (message.getEmbeds().isEmpty()) {
+            event.getHook().editOriginal("⚠️ `" + minecraftUsername + "` is already whitelisted on the server.")
+                    .queue();
+            return;
         }
 
+        EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().get(0))
+                .setTitle("Whitelist Request - Already Whitelisted")
+                .setColor(Color.YELLOW)
+                .setFooter("⚠️ This player is already whitelisted.")
+                .setTimestamp(Instant.now());
+
+        message.editMessageEmbeds(embed.build()).setComponents().queue();
         event.getHook().editOriginal("⚠️ `" + minecraftUsername + "` is already whitelisted on the server.").queue();
     }
 
@@ -116,21 +123,21 @@ public class ApproveButton extends ActionButton {
 
     private void sendApprovalDM(ButtonInteractionEvent event) {
         event.getJDA().retrieveUserById(userId).queue(user -> {
-            if (user != null) {
-                user.openPrivateChannel().queue(channel -> {
-                    EmbedBuilder dmEmbed = new EmbedBuilder()
-                            .setTitle("Whitelist Request Approved")
-                            .setColor(new Color(87, 242, 135))
-                            .setDescription("Congratulations! Your whitelist request has been approved.")
-                            .addField("Minecraft Username", "`" + minecraftUsername + "`", false)
-                            .setFooter("You can now join the server!")
-                            .setTimestamp(Instant.now());
-                    channel.sendMessageEmbeds(dmEmbed.build()).queue(
-                            success -> {
-                            },
-                            error -> Yurushi.LOGGER.error("Could not send DM to user: {}", userId));
-                }, error -> Yurushi.LOGGER.error("Could not open private channel for user: {}", userId));
-            }
+            if (user == null) return;
+
+            user.openPrivateChannel().queue(channel -> {
+                EmbedBuilder dmEmbed = new EmbedBuilder()
+                        .setTitle("Whitelist Request Approved")
+                        .setColor(new Color(87, 242, 135))
+                        .setDescription("Congratulations! Your whitelist request has been approved.")
+                        .addField("Minecraft Username", "`" + minecraftUsername + "`", false)
+                        .setFooter("You can now join the server!")
+                        .setTimestamp(Instant.now());
+                channel.sendMessageEmbeds(dmEmbed.build()).queue(
+                        success -> {
+                        },
+                        error -> Yurushi.LOGGER.error("Could not send DM to user: {}", userId));
+            }, error -> Yurushi.LOGGER.error("Could not open private channel for user: {}", userId));
         }, error -> Yurushi.LOGGER.error("Could not retrieve user: {}", userId));
     }
 }

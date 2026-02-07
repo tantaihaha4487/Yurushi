@@ -10,9 +10,6 @@
   "icon": "assets/yurushi/icon.png",
   "environment": "server",
   "entrypoints": {
-    "fabric-datagen": [
-      "net.thanachot.yurushi.client.YurushiDataGenerator"
-    ],
     "main": [
       "net.thanachot.yurushi.Yurushi"
     ]
