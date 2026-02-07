@@ -65,6 +65,17 @@ public class ApproveButton extends ActionButton {
     }
 
     private void handleAlreadyWhitelisted(ButtonInteractionEvent event) {
+        Message message = event.getMessage();
+        if (!message.getEmbeds().isEmpty()) {
+            EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().get(0))
+                    .setTitle("Whitelist Request - Already Whitelisted")
+                    .setColor(Color.YELLOW)
+                    .setFooter("⚠️ This player is already whitelisted.")
+                    .setTimestamp(Instant.now());
+
+            message.editMessageEmbeds(embed.build()).setComponents().queue();
+        }
+
         event.getHook().editOriginal("⚠️ `" + minecraftUsername + "` is already whitelisted on the server.").queue();
     }
 
@@ -96,8 +107,8 @@ public class ApproveButton extends ActionButton {
                 .setColor(new Color(87, 242, 135))
                 .setThumbnail(MinotarUtil.getAvatarUrl(minecraftUsername))
                 .addField("Minecraft Username", "`" + minecraftUsername + "`", true)
-                .addField("UUID", "`" + result.uuid() + "`", false)
                 .addField("Approved By", adminName, false)
+                .setFooter("You can now join the server!")
                 .setTimestamp(Instant.now());
 
         message.editMessageEmbeds(embed.build()).setComponents().queue();
@@ -112,7 +123,7 @@ public class ApproveButton extends ActionButton {
                             .setColor(new Color(87, 242, 135))
                             .setDescription("Congratulations! Your whitelist request has been approved.")
                             .addField("Minecraft Username", "`" + minecraftUsername + "`", false)
-                            .addField("Status", "You can now join the server!", false)
+                            .setFooter("You can now join the server!")
                             .setTimestamp(Instant.now());
                     channel.sendMessageEmbeds(dmEmbed.build()).queue(
                             success -> {

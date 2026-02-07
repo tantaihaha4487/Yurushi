@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.thanachot.yurushi.Yurushi;
 import net.thanachot.yurushi.config.ModConfig;
 import net.thanachot.yurushi.discord.modal.DenialModal;
+import net.thanachot.yurushi.util.MinotarUtil;
 
 import java.awt.*;
 import java.time.Instant;
@@ -30,7 +31,7 @@ public class DenyButton extends ActionButton {
                             .setDescription("Unfortunately, your whitelist request has been denied.")
                             .addField("Minecraft Username", "`" + minecraftUsername + "`", false)
                             .addField("Reason", reason, false)
-                            .addField("Status", "Please contact an administrator if you have questions.", false)
+                            .setFooter("Please contact an administrator if you have questions.")
                             .setTimestamp(Instant.now());
                     channel.sendMessageEmbeds(dmEmbed.build()).queue(
                             success -> {
@@ -45,9 +46,11 @@ public class DenyButton extends ActionButton {
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Whitelist Request - Denied")
                 .setColor(new Color(237, 66, 69))
+                .setThumbnail(MinotarUtil.getAvatarUrl(minecraftUsername))
                 .addField("Minecraft Username", "`" + minecraftUsername + "`", false)
                 .addField("Reason", reason, false)
                 .addField("Denied By", adminName, false)
+                .setFooter("Please contact an administrator if you have questions.")
                 .setTimestamp(Instant.now());
 
         message.editMessageEmbeds(embed.build()).setComponents().queue();
