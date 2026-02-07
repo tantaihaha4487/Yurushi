@@ -1,6 +1,7 @@
 plugins {
     id 'fabric-loom' version '1.14.5'
     id 'maven-publish'
+    id 'com.gradleup.shadow' version '9.0.0-beta4'
 }
 
 version = project.mod_version
@@ -15,6 +16,11 @@ fabricApi {
     configureDataGeneration {
         client = true
     }
+}
+
+configurations {
+    shadow
+    implementation.extendsFrom shadow
 }
 
 repositories {
@@ -33,19 +39,14 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    implementation("net.dv8tion:JDA:${project.jda_version}") {
-        // Optionally disable audio natives to reduce jar size by excluding `opus-java` and `tink`
-        // Gradle DSL:
-        // exclude module: 'opus-java' // required for encoding audio into opus, not needed if audio is already provided in opus encoding
-        // exclude module: 'tink' // required for encrypting and decrypting audio
-        // Kotlin DSL:
-        // exclude(module="opus-java") // required for encoding audio into opus, not needed if audio is already provided in opus encoding
-        // exclude(module="tink") // required for encrypting and decrypting audio
+    shadow("net.dv8tion:JDA:${project.jda_version}") {
+        exclude module: 'opus-java'
     }
 
     // Reflections library for dynamic command class discovery
-    implementation 'org.reflections:reflections:0.10.2'
-    implementation("com.electronwill.night-config:toml:3.6.7")
+    shadow 'org.reflections:reflections:0.10.2'
+    shadow "com.electronwill.night-config:toml:3.6.7"
+    shadow "com.electronwill.night-config:core:3.6.7"
     include(modImplementation('me.lucko:fabric-permissions-api:0.6.1'))
 }
 
@@ -79,10 +80,20 @@ java {
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the \"build\" task
     // if it is present.
     // If you remove this line, sources will not be generated.
     withSourcesJar()
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    archiveClassifier.set('dev-shadow')
+}
+
+remapJar {
+    dependsOn shadowJar
+    inputFile = shadowJar.archiveFile
 }
 
 jar {

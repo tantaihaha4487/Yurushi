@@ -13,6 +13,7 @@ import net.thanachot.yurushi.discord.event.ClientReady;
 import net.thanachot.yurushi.discord.event.ModalListener;
 import net.thanachot.yurushi.discord.manager.CommandManager;
 import net.thanachot.yurushi.util.ServerAccessor;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,32 +54,43 @@ public class Yurushi implements ModInitializer {
             return;
         }
 
-        try {
-            CommandManager commandManager = new CommandManager();
+        Thread jdaThread = getJdaThread();
 
-            jda = JDABuilder.createDefault(ModConfig.botToken)
-                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
-                    .addEventListeners(
-                            new ClientReady(),
-                            commandManager,
-                            new ButtonListener(),
-                            new ModalListener())
-                    .build();
+        jdaThread.start();
+    }
 
-            jda.awaitReady();
+    private static @NonNull Thread getJdaThread() {
+        ClassLoader modClassLoader = Thread.currentThread().getContextClassLoader();
 
-            var jdaErrors = ModConfig.validateWithJda(jda);
-            if (!jdaErrors.isEmpty()) {
-                for (String error : jdaErrors) {
-                    LOGGER.warn("[Config Warning] {}", error);
+        return new Thread(() -> {
+            Thread.currentThread().setContextClassLoader(modClassLoader);
+            try {
+                CommandManager commandManager = new CommandManager();
+
+                jda = JDABuilder.createDefault(ModConfig.botToken)
+                        .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                        .addEventListeners(
+                                new ClientReady(),
+                                commandManager,
+                                new ButtonListener(),
+                                new ModalListener())
+                        .build();
+
+                jda.awaitReady();
+
+                var jdaErrors = ModConfig.validateWithJda(jda);
+                if (!jdaErrors.isEmpty()) {
+                    for (String error : jdaErrors) {
+                        LOGGER.warn("[Config Warning] {}", error);
+                    }
                 }
+
+                commandManager.registerCommands(jda);
+
+                LOGGER.info("Yurushi initialized successfully");
+            } catch (Exception e) {
+                LOGGER.error("Failed to initialize Discord bot", e);
             }
-
-            commandManager.registerCommands(jda);
-
-            LOGGER.info("Yurushi initialized successfully");
-        } catch (Exception e) {
-            LOGGER.error("Failed to initialize Discord bot", e);
-        }
+        }, "Yurushi-JDA-Init");
     }
 }
