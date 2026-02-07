@@ -122,11 +122,70 @@ Customize all bot messages, embeds, and button labels. Supports placeholders lik
 
 ## How to Use
 
-1. Download the mod jar and place it in your server's `mods` folder.
-2. Start the server once to generate config files.
-3. Configure `Yurushi.toml` with your bot details.
-4. Restart the server.
-5. Use the provided Discord integration to manage whitelist requests.
+### Prerequisites
+
+- A Minecraft server running **Fabric** with the Yurushi mod installed.
+- A **Discord Bot** with the following:
+  - Bot Token (from Discord Developer Portal)
+  - `Server Members Intent` enabled (Privileged Gateway Intents)
+  - Invited to your Discord server with `applications.commands` and `bot` scopes
+
+### Installation
+
+1. Download the mod JAR from [Releases](https://github.com/tantaihaha4487/Yurushi/releases).
+2. Place it in your server's `mods/` folder.
+3. Start the server once to generate default config files in `config/Yurushi/`.
+4. Stop the server and configure `Yurushi.toml` with your bot token and channel settings.
+5. Restart the server — the Discord bot will come online automatically.
+
+### Discord Bot Setup
+
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications) and create a new application.
+2. Navigate to **Bot** → **Reset Token** to get your bot token.
+3. Enable **Server Members Intent** under *Privileged Gateway Intents*.
+4. Go to **OAuth2** → **URL Generator**, select `bot` and `Administrator` scopes.
+5. Copy the generated URL and invite the bot to your server.
+6. Paste the bot token in `Yurushi.toml` (`botToken`).
+
+### Player Workflow
+
+Players can request whitelist access directly from Discord:
+
+1. Use the `/register` slash command in any channel the bot can see.
+2. A modal will appear asking for:
+   - **Minecraft Username** (required)
+   - **Description** (optional) – introduce yourself or explain why you want to join.
+3. After submitting, a confirmation message appears, and the request is sent to the admin channel.
+
+### Admin Workflow
+
+Admins with the configured `whitelistRole` can manage requests:
+
+1. Whitelist requests appear in the configured `adminChannelId` with **Approve** and **Deny** buttons.
+2. Click **Approve** to:
+   - Add the player to the Minecraft server whitelist.
+   - Send a DM to the player notifying them of approval.
+   - Update the request embed to show "Approved" status.
+3. Click **Deny** to:
+   - Open a modal to enter a denial reason.
+   - Send a DM to the player with the reason.
+   - Update the request embed to show "Denied" status.
+
+### Commands
+
+#### Discord Slash Commands
+
+| Command | Description |
+|---------|-------------|
+| `/register` | Opens the whitelist registration form for players |
+| `/debug embeds` | Preview all configured embed styles (Admin only) |
+| `/ping` | Check if the bot is online |
+
+#### Minecraft Commands
+
+| Command | Permission | Description |
+|---------|------------|-------------|
+| `/yurushi reload` | `yurushi.command.reload` (OP Level 3+) | Reload configuration files without restarting the server |
 
 ## Bug Reports & Suggestions
 
