@@ -81,6 +81,7 @@ public class ApproveButton extends ActionButton {
         EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().getFirst())
                 .setTitle(MessageConfig.get("embed.already_whitelisted.title"))
                 .setColor(Color.YELLOW)
+                .setThumbnail(MinotarUtil.getAvatarUrl(minecraftUsername))
                 .setFooter(MessageConfig.get("embed.already_whitelisted.footer"))
                 .setTimestamp(Instant.now());
 
@@ -137,6 +138,9 @@ public class ApproveButton extends ActionButton {
                 EmbedBuilder dmEmbed = new EmbedBuilder()
                         .setTitle(MessageConfig.get("dm.approved.title"))
                         .setColor(new Color(87, 242, 135))
+                        .setAuthor(event.getJDA().getSelfUser().getName(), null,
+                                event.getJDA().getSelfUser().getEffectiveAvatarUrl())
+                        .setThumbnail(event.getUser().getEffectiveAvatarUrl())
                         .setDescription(MessageConfig.get("dm.approved.description"))
                         .addField(MessageConfig.get("embed.request.fields.minecraft_username"),
                                 "`" + minecraftUsername + "`", false)

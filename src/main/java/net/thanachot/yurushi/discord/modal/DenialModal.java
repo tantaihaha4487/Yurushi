@@ -34,13 +34,11 @@ public class DenialModal extends BaseModal {
         DenyButton.sendDenialDM(event.getJDA(), userId, minecraftUsername, denialReason);
 
         if (event.getMessage() != null) {
-            DenyButton.updateOriginalMessage(event.getMessage(), minecraftUsername, denialReason,
-                    event.getUser().getAsMention());
+            DenyButton.updateOriginalMessage(event.getMessage(), minecraftUsername, denialReason, event.getUser().getAsMention());
         }
 
         event.reply(
-                        MessageConfig.get("button.deny.success", "minecraft_username", minecraftUsername, "reason",
-                                denialReason))
+                MessageConfig.get("button.deny.success", "minecraft_username", minecraftUsername, "reason", denialReason))
                 .setEphemeral(true)
                 .queue();
     }

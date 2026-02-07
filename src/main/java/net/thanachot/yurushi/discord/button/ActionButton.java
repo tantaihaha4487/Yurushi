@@ -13,10 +13,20 @@ public abstract class ActionButton {
         this.minecraftUsername = minecraftUsername;
     }
 
+    /**
+     * Parses the button ID into parts.
+     * Expected format: prefix:userId:minecraftUsername
+     */
     public static String[] parseButtonId(String buttonId) {
         return buttonId.split(":");
     }
 
+    /**
+     * visual explanation:
+     * parts[0] = prefix (e.g. whitelist_approve)
+     * parts[1] = userId (Discord User ID)
+     * parts[2] = minecraftUsername
+     */
     public static boolean isValidButtonData(String[] parts) {
         return parts.length >= 3;
     }

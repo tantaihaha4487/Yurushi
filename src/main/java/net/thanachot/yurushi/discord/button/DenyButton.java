@@ -31,10 +31,12 @@ public class DenyButton extends ActionButton {
                 EmbedBuilder dmEmbed = new EmbedBuilder()
                         .setTitle(MessageConfig.get("dm.denied.title"))
                         .setColor(new Color(237, 66, 69))
+                        .setAuthor(jda.getSelfUser().getName(), null, jda.getSelfUser().getEffectiveAvatarUrl())
+                        .setThumbnail(user.getEffectiveAvatarUrl())
                         .setDescription(MessageConfig.get("dm.denied.description"))
                         .addField(MessageConfig.get("embed.request.fields.minecraft_username"),
-                                "`" + minecraftUsername + "`", false)
-                        .addField(MessageConfig.get("embed.denied.fields.reason"), reason, false)
+                                "`" + minecraftUsername + "`", true)
+                        .addField(MessageConfig.get("embed.denied.fields.reason"), reason, true)
                         .setFooter(MessageConfig.get("embed.denied.footer"))
                         .setTimestamp(Instant.now());
                 channel.sendMessageEmbeds(dmEmbed.build()).queue(
@@ -53,8 +55,8 @@ public class DenyButton extends ActionButton {
                 .setThumbnail(MinotarUtil.getAvatarUrl(minecraftUsername))
                 .addField(MessageConfig.get("embed.request.fields.minecraft_username"), "`" + minecraftUsername + "`",
                         false)
-                .addField(MessageConfig.get("embed.denied.fields.reason"), reason, false)
-                .addField(MessageConfig.get("embed.denied.fields.denied_by"), adminName, false)
+                .addField(MessageConfig.get("embed.denied.fields.reason"), reason, true)
+                .addField(MessageConfig.get("embed.denied.fields.denied_by"), adminName, true)
                 .setFooter(MessageConfig.get("embed.denied.footer"))
                 .setTimestamp(Instant.now());
 

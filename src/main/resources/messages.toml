@@ -18,7 +18,7 @@ success = "Whitelist request for `{minecraft_username}` has been denied.\n**Reas
 
 [embed]
 [embed.request]
-title = "Whitelist Request"
+title = "🕚 Whitelist Request"
 footer = "User ID: {user_id}"
 [embed.request.fields]
 discord_user = "Discord User"
@@ -27,17 +27,17 @@ description = "Description"
 description_empty = "*No description provided*"
 
 [embed.approved]
-title = "Whitelist Request - Approved"
+title = "✅ Whitelist Request - Approved"
 footer = "You can now join the server!"
 [embed.approved.fields]
 approved_by = "Approved By"
 
 [embed.already_whitelisted]
-title = "Whitelist Request - Already Whitelisted"
-footer = "⚠️ This player is already whitelisted."
+title = "⚠️ Whitelist Request - Already Whitelisted"
+footer = "This player is already whitelisted."
 
 [embed.denied]
-title = "Whitelist Request - Denied"
+title = "❌ Whitelist Request - Denied"
 footer = "Please contact an administrator if you have questions."
 [embed.denied.fields]
 reason = "Reason"
@@ -45,11 +45,11 @@ denied_by = "Denied By"
 
 [dm]
 [dm.approved]
-title = "Whitelist Request Approved"
+title = "✅ Whitelist Request Approved"
 description = "Congratulations! Your whitelist request has been approved."
 
 [dm.denied]
-title = "Whitelist Request Denied"
+title = "❌ Whitelist Request Denied"
 description = "Unfortunately, your whitelist request has been denied."
 
 [modal]

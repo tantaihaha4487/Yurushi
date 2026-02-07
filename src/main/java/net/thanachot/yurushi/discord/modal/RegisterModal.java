@@ -69,6 +69,7 @@ public class RegisterModal extends BaseModal {
             EmbedBuilder replyEmbed = new EmbedBuilder()
                     .setTitle(MessageConfig.get("modal.register.success"))
                     .setColor(new Color(233, 136, 255))
+                    .setThumbnail(requester.getEffectiveAvatarUrl())
                     .addField(MessageConfig.get("embed.request.fields.discord_user"),
                             requester.getAsMention(), true)
                     .addField(MessageConfig.get("embed.request.fields.minecraft_username"),
