@@ -46,11 +46,14 @@ public abstract class ActionButton {
 
     protected boolean hasRequiredRole(ButtonInteractionEvent event, List<String> allowedRoleIds) {
         Member member = event.getMember();
-        if (member == null) return false;
+        if (member == null)
+            return false;
 
-        if (member.hasPermission(Permission.ADMINISTRATOR)) return true;
+        if (member.hasPermission(Permission.ADMINISTRATOR))
+            return true;
 
-        if (allowedRoleIds == null || allowedRoleIds.isEmpty()) return true;
+        if (allowedRoleIds == null || allowedRoleIds.isEmpty())
+            return true;
 
         for (Role role : member.getRoles()) {
             if (allowedRoleIds.contains(role.getId())) {

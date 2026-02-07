@@ -18,23 +18,12 @@ botToken = ""
 adminChannelId = ""
 
 # ┌────────────────────────────────────────────────────────────────────────────┐
-# │                          BUTTON VISIBILITY                                 │
-# │            Control which buttons appear on whitelist requests              │
-# └────────────────────────────────────────────────────────────────────────────┘
-
-# Allow approving whitelist requests
-adminRuleCanApprove = true
-
-# Allow denying whitelist requests
-adminRuleCanDeny = true
-
-# ┌────────────────────────────────────────────────────────────────────────────┐
 # │                           ROLE PERMISSIONS                                 │
 # │           Restrict who can click the approve/deny buttons                  │
 # └────────────────────────────────────────────────────────────────────────────┘
 
 # Discord Role IDs allowed to click the Approve and Deny buttons
-# - Empty [] = Anyone who can see the channel can approve/deny
+# - Empty [] = Anyone who can see the channel can approve/deny (e.g. Server Owner, Admins)
 # - With roles = Only users with at least one of these roles can approve/deny
 # How to get Role ID: Right-click on a role > Copy Role ID
 # Example: ["1234567890123456789", "9876543210987654321"]

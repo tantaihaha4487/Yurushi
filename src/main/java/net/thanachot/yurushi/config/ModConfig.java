@@ -33,14 +33,10 @@ public class ModConfig {
 
             botToken = config.getOrElse("botToken", "");
             adminChannelId = config.getOrElse("adminChannelId", "");
-            adminRuleCanApprove = config.getOrElse("adminRuleCanApprove", true);
-            adminRuleCanDeny = config.getOrElse("adminRuleCanDeny", true);
             whitelistRole = config.getOrElse("whitelistRole", new ArrayList<>());
 
             config.set("botToken", botToken);
             config.set("adminChannelId", adminChannelId);
-            config.set("adminRuleCanApprove", adminRuleCanApprove);
-            config.set("adminRuleCanDeny", adminRuleCanDeny);
             config.set("whitelistRole", whitelistRole);
         }
     }
@@ -69,10 +65,6 @@ public class ModConfig {
             errors.add("adminChannelId is required");
         }
 
-        if (!adminRuleCanApprove && !adminRuleCanDeny) {
-            errors.add("At least one of adminRuleCanApprove or adminRuleCanDeny must be true");
-        }
-
         return errors;
     }
 
@@ -94,6 +86,7 @@ public class ModConfig {
 
     private static boolean roleExistsInAnyGuild(JDA jda, String roleId) {
         for (Guild guild : jda.getGuilds()) {
+            roleId = roleId.trim();
             if (guild.getRoleById(roleId) != null) {
                 return true;
             }
