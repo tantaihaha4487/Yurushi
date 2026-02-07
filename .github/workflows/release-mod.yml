@@ -37,7 +37,7 @@ jobs:
       - name: Find JAR file
         id: find_jar
         run: |
-          JAR_PATH=$(ls build/libs/Yurushi-*.jar | grep -v sources | grep -v javadoc | head -n 1)
+          JAR_PATH=$(ls build/libs/yurushi-*.jar | grep -v sources | grep -v javadoc | head -n 1)
           JAR_NAME=$(basename "$JAR_PATH")
           echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
           echo "jar_name=$JAR_NAME" >> $GITHUB_OUTPUT
