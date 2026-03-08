@@ -38,7 +38,7 @@ public class DenialModal extends BaseModal {
         }
 
         event.reply(
-                MessageConfig.get("button.deny.success", "minecraft_username", minecraftUsername, "reason", denialReason))
+                        MessageConfig.get("button.deny.success", "minecraft_username", minecraftUsername, "reason", denialReason))
                 .setEphemeral(true)
                 .queue();
     }

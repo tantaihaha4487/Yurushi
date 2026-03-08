@@ -121,3 +121,5 @@ runs/
 
 
 bin/
+.windsurf
+.agents

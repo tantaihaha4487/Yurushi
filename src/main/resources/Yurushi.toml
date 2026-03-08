@@ -28,3 +28,34 @@ adminChannelId = ""
 # How to get Role ID: Right-click on a role > Copy Role ID
 # Example: ["1234567890123456789", "9876543210987654321"]
 whitelistRole = []
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │                        NOTIFICATION SETTINGS                               │
+# │         Configure Discord notifications for player events                  │
+# └────────────────────────────────────────────────────────────────────────────┘
+
+[notifications.greeting]
+# Send a greeting message when a player joins the server for the first time
+# Includes player's skin and a welcoming message
+enabled = true
+
+# Discord channel ID where greeting messages will be sent
+# Leave empty to disable
+channelId = ""
+
+[notifications.join]
+# Send a notification embed when any player joins the server
+enabled = true
+
+# Discord channel ID where join notifications will be sent
+# Leave empty to disable
+channelId = ""
+
+[notifications.ban]
+# Send a notification embed when a player gets banned
+# Includes the ban reason
+enabled = true
+
+# Discord channel ID where ban notifications will be sent
+# Leave empty to disable
+channelId = ""

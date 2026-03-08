@@ -25,6 +25,15 @@ public class ModConfig {
     public static String adminChannelId = "";
     public static List<String> whitelistRole = new ArrayList<>();
 
+    public static boolean greetingEnabled = true;
+    public static String greetingChannelId = "";
+
+    public static boolean joinNotifierEnabled = true;
+    public static String joinNotifierChannelId = "";
+
+    public static boolean banNotifierEnabled = true;
+    public static String banNotifierChannelId = "";
+
     public static void load() {
         if (!Files.exists(CONFIG_DIR)) {
             try {
@@ -46,9 +55,27 @@ public class ModConfig {
             adminChannelId = config.getOrElse("adminChannelId", "");
             whitelistRole = config.getOrElse("whitelistRole", new ArrayList<>());
 
+            greetingEnabled = config.getOrElse("notifications.greeting.enabled", true);
+            greetingChannelId = config.getOrElse("notifications.greeting.channelId", "");
+
+            joinNotifierEnabled = config.getOrElse("notifications.join.enabled", true);
+            joinNotifierChannelId = config.getOrElse("notifications.join.channelId", "");
+
+            banNotifierEnabled = config.getOrElse("notifications.ban.enabled", true);
+            banNotifierChannelId = config.getOrElse("notifications.ban.channelId", "");
+
             config.set("botToken", botToken);
             config.set("adminChannelId", adminChannelId);
             config.set("whitelistRole", whitelistRole);
+
+            config.set("notifications.greeting.enabled", greetingEnabled);
+            config.set("notifications.greeting.channelId", greetingChannelId);
+
+            config.set("notifications.join.enabled", joinNotifierEnabled);
+            config.set("notifications.join.channelId", joinNotifierChannelId);
+
+            config.set("notifications.ban.enabled", banNotifierEnabled);
+            config.set("notifications.ban.channelId", banNotifierChannelId);
         }
     }
 
@@ -84,6 +111,18 @@ public class ModConfig {
 
         if (jda.getTextChannelById(adminChannelId) == null) {
             errors.add("adminChannelId '" + adminChannelId + "' not found in Discord");
+        }
+
+        if (greetingEnabled && !greetingChannelId.isBlank() && jda.getTextChannelById(greetingChannelId) == null) {
+            errors.add("greetingChannelId '" + greetingChannelId + "' not found in Discord");
+        }
+
+        if (joinNotifierEnabled && !joinNotifierChannelId.isBlank() && jda.getTextChannelById(joinNotifierChannelId) == null) {
+            errors.add("joinNotifierChannelId '" + joinNotifierChannelId + "' not found in Discord");
+        }
+
+        if (banNotifierEnabled && !banNotifierChannelId.isBlank() && jda.getTextChannelById(banNotifierChannelId) == null) {
+            errors.add("banNotifierChannelId '" + banNotifierChannelId + "' not found in Discord");
         }
 
         for (String roleId : whitelistRole) {

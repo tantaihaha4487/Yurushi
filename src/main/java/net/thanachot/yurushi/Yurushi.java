@@ -12,6 +12,7 @@ import net.thanachot.yurushi.discord.event.ButtonListener;
 import net.thanachot.yurushi.discord.event.ClientReady;
 import net.thanachot.yurushi.discord.event.ModalListener;
 import net.thanachot.yurushi.discord.manager.CommandManager;
+import net.thanachot.yurushi.util.PlayerNotificationUtil;
 import net.thanachot.yurushi.util.ServerAccessor;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -26,37 +27,6 @@ public class Yurushi implements ModInitializer {
 
     public static JDA getJda() {
         return jda;
-    }
-
-    @Override
-    public void onInitialize() {
-
-        ModConfig.load();
-
-        CommandRegistrationCallback.EVENT
-                .register((dispatcher, registryAccess, environment) -> ReloadConfigCommand.register(dispatcher));
-
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            ServerAccessor.setServer(server);
-            LOGGER.info("Yurushi's WhitelistManager initialized");
-        });
-
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-            ServerAccessor.setServer(null);
-            LOGGER.info("Yurushi's WhitelistManager cleared");
-        });
-
-        if (ModConfig.hasErrors()) {
-            for (String error : ModConfig.validate()) {
-                LOGGER.error("[Config Error] {}", error);
-            }
-            LOGGER.error("Bot will not start due to configuration errors");
-            return;
-        }
-
-        Thread jdaThread = getJdaThread();
-
-        jdaThread.start();
     }
 
     private static @NonNull Thread getJdaThread() {
@@ -91,6 +61,39 @@ public class Yurushi implements ModInitializer {
             } catch (Exception e) {
                 LOGGER.error("Failed to initialize Discord bot", e);
             }
-        }, "Yurushi-JDA-Init");
+        }, "Yurushi's Thread");
+    }
+
+    @Override
+    public void onInitialize() {
+
+        ModConfig.load();
+
+        CommandRegistrationCallback.EVENT
+                .register((dispatcher, registryAccess, environment) -> ReloadConfigCommand.register(dispatcher));
+
+        PlayerNotificationUtil.register();
+
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            ServerAccessor.setServer(server);
+            LOGGER.info("Yurushi's WhitelistManager initialized");
+        });
+
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+            ServerAccessor.setServer(null);
+            LOGGER.info("Yurushi's WhitelistManager cleared");
+        });
+
+        if (ModConfig.hasErrors()) {
+            for (String error : ModConfig.validate()) {
+                LOGGER.error("[Config Error] {}", error);
+            }
+            LOGGER.error("Bot will not start due to configuration errors");
+            return;
+        }
+
+        Thread jdaThread = getJdaThread();
+
+        jdaThread.start();
     }
 }

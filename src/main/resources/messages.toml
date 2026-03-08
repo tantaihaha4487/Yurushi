@@ -68,3 +68,22 @@ title = "Deny Whitelist Request"
 reason_label = "Denial Reason"
 reason_placeholder = "Provide a reason for denying the whitelist request..."
 reason_empty = "*No reason provided*"
+
+[notifications]
+[notifications.greeting]
+title = "🎉 Welcome to the Server!"
+description = "**{player_name}** just joined the server for the first time!\n\nLet's give them a warm welcome! 👋"
+footer = "First time joining • {timestamp}"
+
+[notifications.join]
+title = "🟢 Player Joined"
+description = "**{player_name}** has joined the server"
+footer = "UUID: {uuid} • {timestamp}"
+
+[notifications.ban]
+title = "🔨 Player Banned"
+description = "**{player_name}** has been banned from the server"
+footer = "UUID: {uuid} • {timestamp}"
+[notifications.ban.fields]
+reason = "Reason"
+banned_by = "Banned By"

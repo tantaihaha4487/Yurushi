@@ -6,9 +6,9 @@ Discord Integration Whitelist Mod for Fabric. Simplify your server access manage
 
 - **Discord Integration:** Players request whitelist access via a Discord form (Modal).
 - **One-Click Approval:** Admins can approve or deny requests directly from Discord with a single button click.
-- **Automated Communication:** 
-  - Sends a DM to the player upon approval or denial.
-  - Updates the original request message to reflect the decision.
+- **Automated Communication:**
+    - Sends a DM to the player upon approval or denial.
+    - Updates the original request message to reflect the decision.
 - **Customizable Messages:** Fully configurable text and embed styles via `messages.toml`.
 - **Role-Based Access:** Restrict whitelist management to specific Discord roles using `whitelistRole`.
 - **Debug Tools:** Visualize your embed configurations with `/debug embeds`.
@@ -21,11 +21,11 @@ Configuration files are located in `config/Yurushi/`.
 
 Main plugin configuration.
 
-| Config | Type | Description |
-|--------|------|-------------|
-| `botToken` | String | Your Discord Bot Token |
+| Config           | Type   | Description                                            |
+|------------------|--------|--------------------------------------------------------|
+| `botToken`       | String | Your Discord Bot Token                                 |
 | `adminChannelId` | String | ID of the Discord text channel where requests are sent |
-| `whitelistRole` | List | List of Role IDs allowed to approve/deny requests |
+| `whitelistRole`  | List   | List of Role IDs allowed to approve/deny requests      |
 
 <details>
   <summary>Yurushi.toml</summary>
@@ -40,7 +40,8 @@ Main plugin configuration.
 
 ### messages.toml
 
-Customize all bot messages, embeds, and button labels. Supports placeholders like `{minecraft_username}`, `{reason}`, etc. *(Might not available in all messages).*
+Customize all bot messages, embeds, and button labels. Supports placeholders like `{minecraft_username}`, `{reason}`,
+etc. *(Might not available in all messages).*
 
 <details>
   <summary>messages.toml</summary>
@@ -126,9 +127,9 @@ Customize all bot messages, embeds, and button labels. Supports placeholders lik
 
 - A Minecraft server running **Fabric** with the Yurushi mod installed.
 - A **Discord Bot** with the following:
-  - Bot Token (from Discord Developer Portal)
-  - `Server Members Intent` enabled (Privileged Gateway Intents)
-  - Invited to your Discord server with `applications.commands` and `bot` scopes
+    - Bot Token (from Discord Developer Portal)
+    - `Server Members Intent` enabled (Privileged Gateway Intents)
+    - Invited to your Discord server with `applications.commands` and `bot` scopes
 
 ### Installation
 
@@ -153,8 +154,8 @@ Players can request whitelist access directly from Discord:
 
 1. Use the `/register` slash command in any channel the bot can see.
 2. A modal will appear asking for:
-   - **Minecraft Username** (required)
-   - **Description** (optional) – introduce yourself or explain why you want to join.
+    - **Minecraft Username** (required)
+    - **Description** (optional) – introduce yourself or explain why you want to join.
 3. After submitting, a confirmation message appears, and the request is sent to the admin channel.
 
 ### Admin Workflow
@@ -163,30 +164,31 @@ Admins with the configured `whitelistRole` can manage requests:
 
 1. Whitelist requests appear in the configured `adminChannelId` with **Approve** and **Deny** buttons.
 2. Click **Approve** to:
-   - Add the player to the Minecraft server whitelist.
-   - Send a DM to the player notifying them of approval.
-   - Update the request embed to show "Approved" status.
+    - Add the player to the Minecraft server whitelist.
+    - Send a DM to the player notifying them of approval.
+    - Update the request embed to show "Approved" status.
 3. Click **Deny** to:
-   - Open a modal to enter a denial reason.
-   - Send a DM to the player with the reason.
-   - Update the request embed to show "Denied" status.
+    - Open a modal to enter a denial reason.
+    - Send a DM to the player with the reason.
+    - Update the request embed to show "Denied" status.
 
 ### Commands
 
 #### Discord Slash Commands
 
-| Command | Description |
-|---------|-------------|
-| `/register` | Opens the whitelist registration form for players |
-| `/debug embeds` | Preview all configured embed styles (Admin only) |
-| `/ping` | Check if the bot is online |
+| Command         | Description                                       |
+|-----------------|---------------------------------------------------|
+| `/register`     | Opens the whitelist registration form for players |
+| `/debug embeds` | Preview all configured embed styles (Admin only)  |
+| `/ping`         | Check if the bot is online                        |
 
 #### Minecraft Commands
 
-| Command | Permission | Description |
-|---------|------------|-------------|
+| Command           | Permission                             | Description                                              |
+|-------------------|----------------------------------------|----------------------------------------------------------|
 | `/yurushi reload` | `yurushi.command.reload` (OP Level 3+) | Reload configuration files without restarting the server |
 
 ## Bug Reports & Suggestions
 
-If you encounter any bugs or have suggestions for improvements, please open an issue on the [GitHub Issues](https://github.com/tantaihaha4487/Yurushi/issues) page.
+If you encounter any bugs or have suggestions for improvements, please open an issue on
+the [GitHub Issues](https://github.com/tantaihaha4487/Yurushi/issues) page.
