@@ -9,6 +9,7 @@ import net.thanachot.yurushi.config.MessageConfig;
 import net.thanachot.yurushi.config.ModConfig;
 import net.thanachot.yurushi.discord.ICommand;
 import net.thanachot.yurushi.util.MinotarUtil;
+import net.thanachot.yurushi.util.PlayerNotificationUtil;
 
 import java.awt.*;
 import java.time.Instant;
@@ -121,6 +122,15 @@ public class DebugCommand implements ICommand {
                 .addField(MessageConfig.get("embed.request.fields.minecraft_username"), "`" + username + "`", true)
                 .setTimestamp(Instant.now());
 
+        // Ban Notification Embed
+        EmbedBuilder banNotificationEmbed = PlayerNotificationUtil.createBanEmbed(username, "Example ban reason", "Admin");
+
+        // Greeting Notification Embed
+        EmbedBuilder greetingNotificationEmbed = PlayerNotificationUtil.createGreetingEmbed(username);
+
+        // Join Notification Embed
+        EmbedBuilder joinNotificationEmbed = PlayerNotificationUtil.createJoinEmbed(username);
+
         event.reply("""
                         ## Embed Previews
                         1. **Request Embed** (Sent to Admin Channel)
@@ -129,10 +139,14 @@ public class DebugCommand implements ICommand {
                         4. **Already Whitelisted** (Updated Request Embed)
                         5. **Approved DM** (Sent to User)
                         6. **Denied DM** (Sent to User)
-                        7. **Success Reply** (Ephemeral to User)""")
+                        7. **Success Reply** (Ephemeral to User)
+                        8. **Ban Notification** (Sent to Ban Channel)
+                        9. **Greeting Notification** (Sent to Greeting Channel)
+                        10. **Join Notification** (Sent to Join Channel)""")
                 .addEmbeds(requestEmbed.build(), approvedEmbed.build(), deniedEmbed.build(),
                         alreadyWhitelistedEmbed.build(), approvedDMEmbed.build(), deniedDMEmbed.build(),
-                        successReplyEmbed.build())
+                        successReplyEmbed.build(), banNotificationEmbed.build(), greetingNotificationEmbed.build(),
+                        joinNotificationEmbed.build())
                 .setEphemeral(true)
                 .queue();
     }

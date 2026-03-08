@@ -83,7 +83,7 @@ footer = "UUID: {uuid} • {timestamp}"
 [notifications.ban]
 title = "🔨 Player Banned"
 description = "**{player_name}** has been banned from the server"
-footer = "UUID: {uuid} • {timestamp}"
+footer = "• {timestamp}"
 [notifications.ban.fields]
 reason = "Reason"
 banned_by = "Banned By"

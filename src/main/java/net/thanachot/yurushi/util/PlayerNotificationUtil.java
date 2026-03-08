@@ -42,6 +42,27 @@ public class PlayerNotificationUtil {
         sendGreetingNotification(playerName, playerUuid);
     }
 
+    public static EmbedBuilder createBanEmbed(String playerName, String reason, String bannedBy) {
+        String title = MessageConfig.get("notifications.ban.title");
+        String description = MessageConfig.get("notifications.ban.description",
+                "player_name", playerName);
+        String footerText = MessageConfig.get("notifications.ban.footer",
+                "timestamp", Instant.now().toString());
+
+        String reasonField = MessageConfig.get("notifications.ban.fields.reason");
+        String bannedByField = MessageConfig.get("notifications.ban.fields.banned_by");
+
+        return new EmbedBuilder()
+                .setTitle(title)
+                .setDescription(description)
+                .setColor(Color.RED)
+                .setThumbnail(MinotarUtil.getAvatarUrl(playerName))
+                .addField(reasonField, reason.isBlank() ? "*No reason provided*" : reason, false)
+                .addField(bannedByField, bannedBy.isBlank() ? "Server" : bannedBy, false)
+                .setFooter(footerText)
+                .setTimestamp(Instant.now());
+    }
+
     public static void sendBanNotification(String playerName, UUID playerUuid, String reason, String bannedBy) {
         if (!ModConfig.banNotifierEnabled || ModConfig.banNotifierChannelId.isBlank())
             return;
@@ -54,25 +75,7 @@ public class PlayerNotificationUtil {
                     return;
                 }
 
-                String title = MessageConfig.get("notifications.ban.title");
-                String description = MessageConfig.get("notifications.ban.description",
-                        "player_name", playerName);
-                String footerText = MessageConfig.get("notifications.ban.footer",
-                        "timestamp", Instant.now().toString());
-
-                String reasonField = MessageConfig.get("notifications.ban.fields.reason");
-                String bannedByField = MessageConfig.get("notifications.ban.fields.banned_by");
-
-                EmbedBuilder embed = new EmbedBuilder()
-                        .setTitle(title)
-                        .setDescription(description)
-                        .setColor(Color.RED)
-                        .setThumbnail(MinotarUtil.getAvatarUrl(playerName))
-                        .addField(reasonField, reason.isBlank() ? "*No reason provided*" : reason, false)
-                        .addField(bannedByField, bannedBy.isBlank() ? "Server" : bannedBy, false)
-                        .setFooter(footerText)
-                        .setTimestamp(Instant.now());
-
+                EmbedBuilder embed = createBanEmbed(playerName, reason, bannedBy);
                 channel.sendMessageEmbeds(embed.build()).queue();
                 Yurushi.LOGGER.info("Ban notification sent for player: {}", playerName);
 
@@ -80,6 +83,19 @@ public class PlayerNotificationUtil {
                 Yurushi.LOGGER.error("Failed to send ban notification for {}", playerName, e);
             }
         });
+    }
+
+    public static EmbedBuilder createGreetingEmbed(String playerName) {
+        String title = MessageConfig.get("notifications.greeting.title");
+        String description = MessageConfig.get("notifications.greeting.description",
+                "player_name", playerName);
+
+        return new EmbedBuilder()
+                .setTitle(title)
+                .setDescription(description)
+                .setColor(new Color(88, 101, 242))
+                .setThumbnail(MinotarUtil.getAvatarUrl(playerName))
+                .setTimestamp(Instant.now());
     }
 
     private static void sendGreetingNotification(String playerName, UUID playerUuid) {
@@ -93,26 +109,26 @@ public class PlayerNotificationUtil {
                 return;
             }
 
-            String title = MessageConfig.get("notifications.greeting.title");
-            String description = MessageConfig.get("notifications.greeting.description",
-                    "player_name", playerName);
-            String footerText = MessageConfig.get("notifications.greeting.footer",
-                    "timestamp", Instant.now().toString());
-
-            EmbedBuilder embed = new EmbedBuilder()
-                    .setTitle(title)
-                    .setDescription(description)
-                    .setColor(new Color(88, 101, 242))
-                    .setThumbnail(MinotarUtil.getAvatarUrl(playerName))
-                    .setFooter(footerText)
-                    .setTimestamp(Instant.now());
-
+            EmbedBuilder embed = createGreetingEmbed(playerName);
             channel.sendMessageEmbeds(embed.build()).queue();
             Yurushi.LOGGER.info("Greeting sent for new player: {}", playerName);
 
         } catch (Exception e) {
             Yurushi.LOGGER.error("Failed to send greeting for {}", playerName, e);
         }
+    }
+
+    public static EmbedBuilder createJoinEmbed(String playerName) {
+        String title = MessageConfig.get("notifications.join.title");
+        String description = MessageConfig.get("notifications.join.description",
+                "player_name", playerName);
+
+        return new EmbedBuilder()
+                .setTitle(title)
+                .setDescription(description)
+                .setColor(Color.GREEN)
+                .setThumbnail(MinotarUtil.getAvatarUrl(playerName))
+                .setTimestamp(Instant.now());
     }
 
     private static void sendJoinNotification(String playerName, UUID playerUuid) {
@@ -126,20 +142,7 @@ public class PlayerNotificationUtil {
                 return;
             }
 
-            String title = MessageConfig.get("notifications.join.title");
-            String description = MessageConfig.get("notifications.join.description",
-                    "player_name", playerName);
-            String footerText = MessageConfig.get("notifications.join.footer",
-                    "timestamp", Instant.now().toString());
-
-            EmbedBuilder embed = new EmbedBuilder()
-                    .setTitle(title)
-                    .setDescription(description)
-                    .setColor(Color.GREEN)
-                    .setThumbnail(MinotarUtil.getAvatarUrl(playerName))
-                    .setFooter(footerText)
-                    .setTimestamp(Instant.now());
-
+            EmbedBuilder embed = createJoinEmbed(playerName);
             channel.sendMessageEmbeds(embed.build()).queue();
             Yurushi.LOGGER.info("Join notification sent for player: {}", playerName);
 
