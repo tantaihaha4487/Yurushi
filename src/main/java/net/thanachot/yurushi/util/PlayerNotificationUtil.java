@@ -103,7 +103,6 @@ public class PlayerNotificationUtil {
                     .setTitle(title)
                     .setDescription(description)
                     .setColor(new Color(88, 101, 242))
-                    .setImage(MinotarUtil.getAvatarUrl(playerName, 300))
                     .setThumbnail(MinotarUtil.getAvatarUrl(playerName))
                     .setFooter(footerText)
                     .setTimestamp(Instant.now());
@@ -131,7 +130,6 @@ public class PlayerNotificationUtil {
             String description = MessageConfig.get("notifications.join.description",
                     "player_name", playerName);
             String footerText = MessageConfig.get("notifications.join.footer",
-                    "uuid", playerUuid.toString(),
                     "timestamp", Instant.now().toString());
 
             EmbedBuilder embed = new EmbedBuilder()

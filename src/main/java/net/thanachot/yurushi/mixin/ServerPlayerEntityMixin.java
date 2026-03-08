@@ -2,7 +2,9 @@ package net.thanachot.yurushi.mixin;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.PlayerManager;
 import net.thanachot.yurushi.util.PlayerNotificationUtil;
+import net.thanachot.yurushi.util.ServerAccessor;
 import net.thanachot.yurushi.Yurushi;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -25,10 +27,17 @@ public abstract class ServerPlayerEntityMixin {
 
         try {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-            MinecraftServer server = player.getServer();
             
-            if (server != null && server.getUserCache() != null) {
-                boolean isFirstJoin = server.getUserCache().getByUuid(player.getUuid()).isEmpty();
+            if (ServerAccessor.getServer().isEmpty()) return;
+            
+            
+            MinecraftServer server = ServerAccessor.getServer().get();
+            PlayerManager playerManager = server.getPlayerManager();
+            
+            if (playerManager != null) {
+                boolean isFirstJoin = player.getStatHandler() == null || 
+                    player.getStatHandler().getStat(net.minecraft.stat.Stats.CUSTOM.getOrCreateStat(
+                        net.minecraft.stat.Stats.PLAY_TIME)) == 0;
                 
                 if (isFirstJoin) {
                     PlayerNotificationUtil.sendFirstJoinGreeting(player.getName().getString(), player.getUuid());
