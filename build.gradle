@@ -1,7 +1,7 @@
 plugins {
-    id 'fabric-loom' version '1.14.5'
+    id 'net.fabricmc.fabric-loom' version '1.17.19'
     id 'maven-publish'
-    id 'com.gradleup.shadow' version '9.0.0-beta4'
+    id 'com.gradleup.shadow' version '9.6.1'
 }
 
 version = project.mod_version
@@ -11,12 +11,14 @@ base {
     archivesName = project.archives_base_name
 }
 
-
-fabricApi {
-    configureDataGeneration {
-        client = true
+loom {
+    runs {
+        server {
+            runDir = "build/run/blankServer"
+        }
     }
 }
+
 
 configurations {
     shadow
@@ -34,10 +36,9 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     shadow("net.dv8tion:JDA:${project.jda_version}") {
         exclude module: 'opus-java'
@@ -47,7 +48,23 @@ dependencies {
     shadow 'org.reflections:reflections:0.10.2'
     shadow "com.electronwill.night-config:toml:3.6.7"
     shadow "com.electronwill.night-config:core:3.6.7"
-    include(modImplementation('me.lucko:fabric-permissions-api:0.6.1'))
+    include(implementation('me.lucko:fabric-permissions-api:0.7.0'))
+
+    testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+}
+
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "yurushi-test"
+        enableGameTests = true
+        enableClientGameTests = false
+        eula = true
+    }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 processResources {
@@ -63,7 +80,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
@@ -87,20 +104,20 @@ java {
 }
 
 shadowJar {
+    dependsOn jar
     configurations = [project.configurations.shadow]
-    archiveClassifier.set('dev-shadow')
-}
-
-remapJar {
-    dependsOn shadowJar
-    inputFile = shadowJar.archiveFile
+    archiveClassifier.set('')
+    from({ zipTree(jar.archiveFile) })
 }
 
 jar {
-    from("LICENSE") {
+    archiveClassifier.set('thin')
+    from("LICENSE.txt") {
         rename { "${it}_${project.archives_base_name}" }
     }
 }
+
+assemble.dependsOn shadowJar
 
 // configure the maven publication
 publishing {

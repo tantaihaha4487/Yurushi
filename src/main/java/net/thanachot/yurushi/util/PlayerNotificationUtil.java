@@ -3,7 +3,8 @@ package net.thanachot.yurushi.util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.thanachot.yurushi.Yurushi;
 import net.thanachot.yurushi.config.MessageConfig;
 import net.thanachot.yurushi.config.ModConfig;
@@ -21,9 +22,14 @@ public class PlayerNotificationUtil {
 
     public static void register() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            ServerPlayerEntity player = handler.getPlayer();
-            UUID playerUuid = player.getUuid();
+            ServerPlayer player = handler.getPlayer();
+            UUID playerUuid = player.getUUID();
             String playerName = player.getName().getString();
+            boolean isFirstJoin = isFirstJoin(player.getStats().getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)));
+
+            if (isFirstJoin) {
+                sendFirstJoinGreeting(playerName, playerUuid);
+            }
 
             CompletableFuture.runAsync(() -> {
                 sendJoinNotification(playerName, playerUuid);
@@ -32,6 +38,14 @@ public class PlayerNotificationUtil {
                 return null;
             });
         });
+    }
+
+    public static boolean isFirstJoin(int playTime) {
+        return playTime == 0;
+    }
+
+    static boolean shouldNotify(boolean enabled, String channelId) {
+        return enabled && channelId != null && !channelId.isBlank();
     }
 
     public static void sendFirstJoinGreeting(String playerName, UUID playerUuid) {
@@ -64,7 +78,7 @@ public class PlayerNotificationUtil {
     }
 
     public static void sendBanNotification(String playerName, UUID playerUuid, String reason, String bannedBy) {
-        if (!ModConfig.banNotifierEnabled || ModConfig.banNotifierChannelId.isBlank())
+        if (!shouldNotify(ModConfig.banNotifierEnabled, ModConfig.banNotifierChannelId))
             return;
 
         CompletableFuture.runAsync(() -> {
@@ -99,7 +113,7 @@ public class PlayerNotificationUtil {
     }
 
     private static void sendGreetingNotification(String playerName, UUID playerUuid) {
-        if (!ModConfig.greetingEnabled || ModConfig.greetingChannelId.isBlank())
+        if (!shouldNotify(ModConfig.greetingEnabled, ModConfig.greetingChannelId))
             return;
 
         try {
@@ -132,7 +146,7 @@ public class PlayerNotificationUtil {
     }
 
     private static void sendJoinNotification(String playerName, UUID playerUuid) {
-        if (!ModConfig.joinNotifierEnabled || ModConfig.joinNotifierChannelId.isBlank())
+        if (!shouldNotify(ModConfig.joinNotifierEnabled, ModConfig.joinNotifierChannelId))
             return;
 
         try {

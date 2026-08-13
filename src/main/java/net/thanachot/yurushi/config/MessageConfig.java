@@ -49,7 +49,11 @@ public class MessageConfig {
     }
 
     public static String get(String key, String... replacements) {
-        String msg = get(key);
+        return replacePlaceholders(get(key), replacements);
+    }
+
+    static String replacePlaceholders(String message, String... replacements) {
+        String msg = message;
         for (int i = 0; i < replacements.length; i += 2) {
             if (i + 1 < replacements.length) {
                 msg = msg.replace("{" + replacements[i] + "}", String.valueOf(replacements[i + 1]));

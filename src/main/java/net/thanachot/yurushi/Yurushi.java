@@ -81,6 +81,10 @@ public class Yurushi implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             ServerAccessor.setServer(null);
+            if (jda != null) {
+                jda.shutdownNow();
+                jda = null;
+            }
             LOGGER.info("Yurushi's WhitelistManager cleared");
         });
 

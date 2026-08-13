@@ -1,8 +1,7 @@
 package net.thanachot.yurushi.mixin;
 
-import com.mojang.authlib.GameProfile;
-import net.minecraft.server.BannedPlayerEntry;
-import net.minecraft.server.BannedPlayerList;
+import net.minecraft.server.players.UserBanList;
+import net.minecraft.server.players.UserBanListEntry;
 import net.thanachot.yurushi.Yurushi;
 import net.thanachot.yurushi.util.PlayerNotificationUtil;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,28 +9,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.lang.reflect.Field;
-import java.util.UUID;
-
-@Mixin(BannedPlayerList.class)
+@Mixin(UserBanList.class)
 public abstract class UserBanListMixin {
 
-    @Inject(method = "add(Lnet/minecraft/server/BannedPlayerEntry;)Z", at = @At("TAIL"))
-    private void onPlayerBanned(BannedPlayerEntry entry, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "add(Lnet/minecraft/server/players/UserBanListEntry;)Z", at = @At("TAIL"))
+    private void onPlayerBanned(UserBanListEntry entry, CallbackInfoReturnable<Boolean> cir) {
         try {
-            Field keyField = entry.getClass().getSuperclass().getDeclaredField("key");
-            keyField.setAccessible(true);
-            GameProfile profile = (GameProfile) keyField.get(entry);
+            var profile = entry.getUser();
             if (profile == null)
                 return;
 
-            Field nameField = GameProfile.class.getDeclaredField("name");
-            Field idField = GameProfile.class.getDeclaredField("id");
-            nameField.setAccessible(true);
-            idField.setAccessible(true);
-
-            String playerName = (String) nameField.get(profile);
-            UUID playerId = (UUID) idField.get(profile);
+            String playerName = profile.name();
+            var playerId = profile.id();
 
             String reason = entry.getReason() != null ? entry.getReason() : "";
             String source = entry.getSource() != null ? entry.getSource() : "";

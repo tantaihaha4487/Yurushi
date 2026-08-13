@@ -125,7 +125,8 @@ etc. *(Might not available in all messages).*
 
 ### Prerequisites
 
-- A Minecraft server running **Fabric** with the Yurushi mod installed.
+- A **Minecraft 26.1.2** server running **Fabric Loader 0.19.3 or newer**, with Fabric API 0.155.2+26.1.2 and the Yurushi mod installed.
+- **Java 25** for running the server.
 - A **Discord Bot** with the following:
     - Bot Token (from Discord Developer Portal)
     - `Server Members Intent` enabled (Privileged Gateway Intents)

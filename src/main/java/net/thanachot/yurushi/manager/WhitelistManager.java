@@ -3,7 +3,7 @@ package net.thanachot.yurushi.manager;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 import net.thanachot.yurushi.Yurushi;
 
 import java.io.BufferedReader;
@@ -27,7 +27,7 @@ public class WhitelistManager {
     }
 
     public CompletableFuture<WhitelistResult> addToWhitelist(String username) {
-        boolean isOnlineMode = server.isOnlineMode();
+        boolean isOnlineMode = server.usesAuthentication();
 
         if (isOnlineMode) {
             return addOnlineModeWhitelist(username);
@@ -46,7 +46,7 @@ public class WhitelistManager {
 
 
                 MojangProfile mojangProfile = profile.get();
-                return executeWhitelistAdd(mojangProfile.username(), mojangProfile.uuid());
+                return scheduleWhitelistAdd(mojangProfile.username(), mojangProfile.uuid()).join();
 
             } catch (Exception e) {
                 Yurushi.LOGGER.error("Failed to add {} to whitelist (online mode)", username, e);
@@ -59,7 +59,7 @@ public class WhitelistManager {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 UUID offlineUuid = generateOfflineUuid(username);
-                return executeWhitelistAdd(username, offlineUuid);
+                return scheduleWhitelistAdd(username, offlineUuid).join();
             } catch (Exception e) {
                 Yurushi.LOGGER.error("Failed to add {} to whitelist (offline mode)", username, e);
                 return WhitelistResult.error(username, e.getMessage());
@@ -67,30 +67,27 @@ public class WhitelistManager {
         });
     }
 
-    private WhitelistResult executeWhitelistAdd(String username, UUID uuid) {
-        try {
-            if (isPlayerWhitelisted(username)) {
-                return WhitelistResult.alreadyWhitelisted(username);
-            }
-
-            server.execute(() -> {
-                try {
-                    ServerCommandSource source = server.getCommandSource();
-                    var dispatcher = server.getCommandManager().getDispatcher();
-                    dispatcher.execute("whitelist add " + username, source);
-                } catch (Exception e) {
-                    Yurushi.LOGGER.error("Command execution failed for {}", username, e);
+    private CompletableFuture<WhitelistResult> scheduleWhitelistAdd(String username, UUID uuid) {
+        CompletableFuture<WhitelistResult> result = new CompletableFuture<>();
+        server.execute(() -> {
+            try {
+                if (isPlayerWhitelisted(username)) {
+                    result.complete(WhitelistResult.alreadyWhitelisted(username));
+                    return;
                 }
-            });
 
-            Yurushi.LOGGER.info("Added {} ({}) to whitelist (mode: {})",
-                    username, uuid, server.isOnlineMode() ? "online" : "offline");
-            return WhitelistResult.success(username, uuid);
-
-        } catch (Exception e) {
-            Yurushi.LOGGER.error("Failed to execute whitelist add for {}", username, e);
-            return WhitelistResult.error(username, e.getMessage());
-        }
+                CommandSourceStack source = server.createCommandSourceStack();
+                var dispatcher = server.getCommands().getDispatcher();
+                dispatcher.execute("whitelist add " + username, source);
+                Yurushi.LOGGER.info("Added {} ({}) to whitelist (mode: {})",
+                        username, uuid, server.usesAuthentication() ? "online" : "offline");
+                result.complete(WhitelistResult.success(username, uuid));
+            } catch (Exception e) {
+                Yurushi.LOGGER.error("Failed to execute whitelist add for {}", username, e);
+                result.complete(WhitelistResult.error(username, e.getMessage()));
+            }
+        });
+        return result;
     }
 
     private Optional<MojangProfile> fetchMojangProfile(String username) throws Exception {
@@ -135,7 +132,7 @@ public class WhitelistManager {
         return UUID.fromString(formatted);
     }
 
-    private UUID generateOfflineUuid(String username) {
+    static UUID generateOfflineUuid(String username) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] hash = md.digest(("OfflinePlayer:" + username).getBytes(StandardCharsets.UTF_8));
@@ -161,33 +158,30 @@ public class WhitelistManager {
     }
 
     public CompletableFuture<Boolean> removeFromWhitelist(String username) {
-        return CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<Boolean> result = new CompletableFuture<>();
+        server.execute(() -> {
             try {
-                if (!isPlayerWhitelisted(username))
-                    return false;
+                if (!isPlayerWhitelisted(username)) {
+                    result.complete(false);
+                    return;
+                }
 
-                server.execute(() -> {
-                    try {
-                        ServerCommandSource source = server.getCommandSource();
-                        var dispatcher = server.getCommandManager().getDispatcher();
-                        dispatcher.execute("whitelist remove " + username, source);
-                    } catch (Exception e) {
-                        Yurushi.LOGGER.error("Command execution failed for {}", username, e);
-                    }
-                });
-
+                CommandSourceStack source = server.createCommandSourceStack();
+                var dispatcher = server.getCommands().getDispatcher();
+                dispatcher.execute("whitelist remove " + username, source);
                 Yurushi.LOGGER.info("Removed {} from whitelist", username);
-                return true;
+                result.complete(true);
             } catch (Exception e) {
                 Yurushi.LOGGER.error("Failed to remove {} from whitelist", username, e);
-                return false;
+                result.complete(false);
             }
         });
+        return result;
     }
 
     public boolean isPlayerWhitelisted(String username) {
-        var whitelist = server.getPlayerManager().getWhitelist();
-        var names = whitelist.getNames();
+        var whitelist = server.getPlayerList().getWhiteList();
+        var names = whitelist.getUserList();
 
         for (String name : names) {
             if (name.equalsIgnoreCase(username)) {
@@ -198,7 +192,7 @@ public class WhitelistManager {
     }
 
     public boolean isOnlineMode() {
-        return server.isOnlineMode();
+        return server.usesAuthentication();
     }
 
     public record MojangProfile(String username, UUID uuid) {
